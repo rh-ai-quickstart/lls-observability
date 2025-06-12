@@ -1,0 +1,23 @@
+apiVersion: v2
+name: llama-stack
+description: A Helm chart for Llama Stack server
+type: application
+version: 1.0.0
+appVersion: "latest"
+keywords:
+  - llama-stack
+  - ai
+  - mcp
+  - agents
+home: https://github.com/company/llama-stack-mcp-server
+sources:
+  - https://github.com/company/llama-stack-mcp-server
+maintainers:
+  - name: AI Engineering Team
+    email: ai-engineering@company.com
+annotations:
+  category: AI Applications
+  openshift.io/display-name: "Llama Stack"
+  openshift.io/provider-display-name: "AI Engineering Team"
+  openshift.io/documentation-url: "https://docs.company.com/llama-stack"
+  openshift.io/support-url: "https://support.company.com"

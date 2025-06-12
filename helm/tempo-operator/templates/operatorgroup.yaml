@@ -1,0 +1,12 @@
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  name: {{ include "tempo-operator.operatorGroupName" . }}
+  namespace: {{ include "tempo-operator.namespace" . }}
+  labels:
+    {{- include "tempo-operator.labels" . | nindent 4 }}
+  {{- with .Values.commonAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec: {}

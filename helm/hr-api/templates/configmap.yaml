@@ -1,0 +1,41 @@
+{{- if .Values.configMap.enabled -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hr-enterprise-api
+  labels:
+    {{- include "hr-enterprise-api.labels" . | nindent 4 }}
+data:
+  {{- with .Values.configMap.data }}
+  {{- toYaml . | nindent 2 }}
+  {{- end }}
+  # Application configuration
+  app-config.json: |
+    {
+      "app": {
+        "name": "HR Enterprise API",
+        "version": "{{ .Chart.AppVersion }}",
+        "environment": "{{ .Values.env.NODE_ENV }}"
+      },
+      "server": {
+        "port": {{ .Values.env.PORT }},
+        "cors": {
+          "enabled": true,
+          "origins": ["*"]
+        },
+        "rateLimit": {
+          "enabled": {{ .Values.env.ENABLE_RATE_LIMITING }},
+          "windowMs": 900000,
+          "max": 100
+        }
+      },
+      "swagger": {
+        "enabled": {{ .Values.env.ENABLE_SWAGGER }},
+        "path": "/api-docs"
+      },
+      "logging": {
+        "level": "info",
+        "format": "combined"
+      }
+    }
+{{- end }}

@@ -1,0 +1,23 @@
+apiVersion: v2
+name: llama-stack-playground
+description: A Helm chart for Llama Stack Playground UI
+type: application
+version: 1.0.0
+appVersion: "latest"
+keywords:
+  - llama-stack
+  - playground
+  - ui
+  - ai
+home: https://github.com/company/llama-stack-mcp-server
+sources:
+  - https://github.com/company/llama-stack-mcp-server
+maintainers:
+  - name: AI Engineering Team
+    email: ai-engineering@company.com
+annotations:
+  category: AI Applications
+  openshift.io/display-name: "Llama Stack Playground"
+  openshift.io/provider-display-name: "AI Engineering Team"
+  openshift.io/documentation-url: "https://docs.company.com/llama-stack-playground"
+  openshift.io/support-url: "https://support.company.com"

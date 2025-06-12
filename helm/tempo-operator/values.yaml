@@ -1,0 +1,61 @@
+# Default values for tempo-operator
+replicaCount: 1
+
+nameOverride: ""
+fullnameOverride: ""
+
+# Operator configuration
+operator:
+  # Namespace for the operator
+  namespace: openshift-tempo-operator
+  
+  # Subscription configuration
+  subscription:
+    name: tempo-product
+    channel: stable
+    installPlanApproval: Automatic
+    source: redhat-operators
+    sourceNamespace: openshift-marketplace
+  
+  # OperatorGroup configuration
+  operatorGroup:
+    name: openshift-tempo-operator
+
+# Namespace configuration
+namespace:
+  create: true
+  name: openshift-tempo-operator
+  annotations:
+    openshift.io/display-name: "Tempo Operator"
+  labels:
+    openshift.io/cluster-monitoring: 'true'
+
+# TempoStack instance configuration - REMOVED
+# TempoStack instances should be created separately using the tempo directory
+# This chart only installs the operator
+
+# Additional labels and annotations
+commonLabels: {}
+commonAnnotations: {}
+
+# Pod security context
+podSecurityContext:
+  runAsNonRoot: true
+
+# Security context
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: false
+  runAsNonRoot: true
+
+# Node selector
+nodeSelector: {}
+
+# Tolerations
+tolerations: []
+
+# Affinity
+affinity: {}

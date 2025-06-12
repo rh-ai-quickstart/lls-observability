@@ -1,0 +1,4 @@
+# TempoStack instances are no longer created by this chart
+# Use the separate tempo kustomize configuration to create TempoStack instances
+# This file is kept as a placeholder to avoid breaking existing deployments
+# that might reference it. It can be safely deleted if not referenced.

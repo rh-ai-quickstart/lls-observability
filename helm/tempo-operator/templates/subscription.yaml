@@ -1,0 +1,17 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: {{ include "tempo-operator.subscriptionName" . }}
+  namespace: {{ include "tempo-operator.namespace" . }}
+  labels:
+    {{- include "tempo-operator.labels" . | nindent 4 }}
+  {{- with .Values.commonAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  channel: {{ .Values.operator.subscription.channel }}
+  installPlanApproval: {{ .Values.operator.subscription.installPlanApproval }}
+  name: {{ .Values.operator.subscription.name }}
+  source: {{ .Values.operator.subscription.source }}
+  sourceNamespace: {{ .Values.operator.subscription.sourceNamespace }}

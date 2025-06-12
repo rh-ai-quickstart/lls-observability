@@ -1,0 +1,23 @@
+apiVersion: v2
+name: hr-enterprise-api
+description: A Helm chart for HR Enterprise API on OpenShift
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+keywords:
+  - hr
+  - api
+  - enterprise
+  - nodejs
+home: https://github.com/company/hr-enterprise-api
+sources:
+  - https://github.com/company/hr-enterprise-api
+maintainers:
+  - name: HR Engineering Team
+    email: hr-engineering@company.com
+annotations:
+  category: HR Applications
+  openshift.io/display-name: "HR Enterprise API"
+  openshift.io/provider-display-name: "Company HR Team"
+  openshift.io/documentation-url: "https://docs.company.com/hr-api"
+  openshift.io/support-url: "https://support.company.com"

@@ -1,0 +1,24 @@
+apiVersion: v2
+name: tempo-operator
+description: A Helm chart for Tempo Operator on OpenShift
+type: application
+version: 1.0.0
+appVersion: "stable"
+keywords:
+  - tempo
+  - operator
+  - tracing
+  - observability
+  - grafana
+home: https://github.com/grafana/tempo-operator
+sources:
+  - https://github.com/grafana/tempo-operator
+maintainers:
+  - name: Observability Engineering Team
+    email: observability-engineering@company.com
+annotations:
+  category: Observability
+  openshift.io/display-name: "Tempo Operator"
+  openshift.io/provider-display-name: "Observability Engineering Team"
+  openshift.io/documentation-url: "https://docs.company.com/tempo-operator"
+  openshift.io/support-url: "https://support.company.com"

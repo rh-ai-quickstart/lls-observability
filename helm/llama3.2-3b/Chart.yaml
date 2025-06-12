@@ -1,0 +1,24 @@
+apiVersion: v2
+name: llama3-2-3b
+description: A Helm chart for Llama 3.2-3B model deployment on vLLM
+type: application
+version: 1.0.0
+appVersion: "3.2-3b"
+keywords:
+  - llama
+  - vllm
+  - ai
+  - ml
+  - inference
+home: https://github.com/company/llama-stack-mcp-server
+sources:
+  - https://github.com/company/llama-stack-mcp-server
+maintainers:
+  - name: AI Engineering Team
+    email: ai-engineering@company.com
+annotations:
+  category: AI Applications
+  openshift.io/display-name: "Llama 3.2-3B Model"
+  openshift.io/provider-display-name: "AI Engineering Team"
+  openshift.io/documentation-url: "https://docs.company.com/llama-models"
+  openshift.io/support-url: "https://support.company.com"
