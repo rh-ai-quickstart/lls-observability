@@ -1,0 +1,20 @@
+apiVersion: v2
+name: otel-collector
+description: A Helm chart for OpenTelemetry Collector with sidecar configurations for observability
+type: application
+version: 0.1.0
+appVersion: "0.115.0"
+keywords:
+  - opentelemetry
+  - observability
+  - tracing
+  - metrics
+  - otel
+home: https://opentelemetry.io/
+sources:
+  - https://github.com/open-telemetry/opentelemetry-operator
+maintainers:
+  - name: Observability Team
+dependencies: []
+annotations:
+  category: Observability

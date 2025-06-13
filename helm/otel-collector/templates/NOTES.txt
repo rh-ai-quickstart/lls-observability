@@ -1,0 +1,36 @@
+1. Get the OpenTelemetry Collector status:
+   kubectl get opentelemetrycollector {{ .Values.collector.name }} -n {{ include "otel-collector.namespace" . }}
+
+2. Check the collector logs:
+   kubectl logs -n {{ include "otel-collector.namespace" . }} deployment/{{ .Values.collector.name }}-collector
+
+3. The main collector endpoints are available at:
+   - OTLP gRPC: {{ .Values.collector.name }}-collector.{{ include "otel-collector.namespace" . }}.svc.cluster.local:4317
+   - OTLP HTTP: {{ .Values.collector.name }}-collector.{{ include "otel-collector.namespace" . }}.svc.cluster.local:4318
+   - Metrics: {{ .Values.collector.name }}-collector.{{ include "otel-collector.namespace" . }}.svc.cluster.local:8888
+
+{{- if .Values.collector.ingress.enabled }}
+4. The collector ingress is configured. Check the route:
+   kubectl get route {{ .Values.collector.name }}-collector -n {{ include "otel-collector.namespace" . }}
+{{- end }}
+
+{{- if .Values.sidecars.llamastack.enabled }}
+5. To inject the LlamaStack sidecar into your pods, add this annotation:
+   sidecar.opentelemetry.io/inject: {{ .Values.sidecars.llamastack.injectAnnotation }}
+{{- end }}
+
+{{- if .Values.sidecars.vllm.enabled }}
+6. To inject the vLLM sidecar into your pods, add this annotation:
+   sidecar.opentelemetry.io/inject: {{ .Values.sidecars.vllm.injectAnnotation }}
+{{- end }}
+
+7. Verify RBAC permissions:
+   kubectl auth can-i create dev --as=system:serviceaccount:{{ include "otel-collector.namespace" . }}:{{ include "otel-collector.serviceAccountName" . }}
+
+8. Test the collector with a simple trace:
+   kubectl run test-trace --rm -i --tty --image=curlimages/curl -- \
+     curl -X POST {{ .Values.collector.name }}-collector.{{ include "otel-collector.namespace" . }}.svc.cluster.local:4318/v1/traces \
+     -H "Content-Type: application/json" \
+     -d '{"resourceSpans": []}'
+
+For more information and troubleshooting, see the README.md file.

@@ -1,0 +1,78 @@
+{{- if .Values.sidecars.vllm.enabled -}}
+# Once this exists, any pod with the template.metadata.annotation below will send metrics
+# to {{ include "otel-collector.namespace" . }}:
+# sidecar.opentelemetry.io/inject: {{ .Values.sidecars.vllm.injectAnnotation }}
+apiVersion: opentelemetry.io/v1beta1
+kind: OpenTelemetryCollector
+metadata:
+  name: {{ .Values.sidecars.vllm.name }}
+  namespace: {{ include "otel-collector.namespace" . }}
+  labels:
+    {{- include "otel-collector.vllmSidecarLabels" . | nindent 4 }}
+  {{- with .Values.common.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  mode: sidecar
+  managementState: managed
+  upgradeStrategy: automatic
+  replicas: 1
+  ipFamilyPolicy: SingleStack
+  {{- with .Values.sidecars.vllm.resources }}
+  resources:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  observability:
+    metrics: {}
+  deploymentUpdateStrategy: {}
+  podDnsConfig: {}
+  ingress:
+    route: {}
+  daemonSetUpdateStrategy: {}
+  targetAllocator:
+    {{- with .Values.sidecars.vllm.targetAllocator }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  config:
+    exporters:
+      debug: {}
+      otlphttp:
+        # all sidecars can export to the central {{ include "otel-collector.namespace" . }} otel-collector, then be
+        # exported to various backends from there (in-cluster, external 3rd party)
+        endpoint: {{ include "otel-collector.centralCollectorEndpoint" . }}
+        tls:
+          insecure: true
+    processors: {}
+    receivers:
+      otlp:
+        protocols:
+          grpc: {}
+          http: {}
+      prometheus:
+        config:
+          scrape_configs:
+            - job_name: vllm-sidecar
+              scrape_interval: 15s
+              static_configs:
+                - targets:
+                    - 'localhost:8000'
+    service:
+      pipelines:
+        traces:
+          exporters:
+            - debug
+            - otlphttp
+          receivers:
+            - otlp
+        metrics:
+          exporters:
+            - debug
+            - otlphttp
+          receivers:
+            - prometheus
+            - otlp
+      telemetry:
+        metrics:
+          address: '0.0.0.0:8888'
+{{- end }}
