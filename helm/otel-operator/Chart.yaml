@@ -1,0 +1,25 @@
+apiVersion: v2
+name: otel-operator
+description: A Helm chart for OpenTelemetry Operator on OpenShift
+type: application
+version: 1.0.0
+appVersion: "0.93.0-3"
+keywords:
+  - opentelemetry
+  - otel
+  - operator
+  - tracing
+  - observability
+  - telemetry
+home: https://github.com/open-telemetry/opentelemetry-operator
+sources:
+  - https://github.com/open-telemetry/opentelemetry-operator
+maintainers:
+  - name: Observability Engineering Team
+    email: observability-engineering@company.com
+annotations:
+  category: Observability
+  openshift.io/display-name: "OpenTelemetry Operator"
+  openshift.io/provider-display-name: "Observability Engineering Team"
+  openshift.io/documentation-url: "https://docs.company.com/otel-operator"
+  openshift.io/support-url: "https://support.company.com"

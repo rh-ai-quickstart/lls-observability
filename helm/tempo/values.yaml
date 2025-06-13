@@ -33,9 +33,9 @@ tempoStack:
       enabled: true
     queryFrontend:
       jaegerQuery:
-        enabled: true
-        ingress:
-          type: route
+        enabled: false
+        # ingress:
+        #   type: route
 
 # MinIO storage configuration
 minio:
@@ -62,8 +62,8 @@ minio:
   
   # S3 configuration for Tempo
   s3:
-    accessKeyId: tempo
-    accessKeySecret: supersecret
+    accessKeyId: admin
+    accessKeySecret: minio123
     bucket: tempo
 
 # RBAC configuration

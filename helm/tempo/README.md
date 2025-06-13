@@ -1,6 +1,6 @@
-# Tempo TempoStack Configuration
+# Tempo TempoStack Helm Chart
 
-This directory contains the Kustomize configuration for deploying a TempoStack instance with MinIO storage. This configuration is designed to work with the Tempo Operator installed via the `../tempo-operator/` Helm chart.
+This directory contains the Helm chart for deploying a TempoStack instance with MinIO storage. This chart is designed to work with the Tempo Operator installed via the `../tempo-operator/` Helm chart.
 
 ## Overview
 
@@ -24,17 +24,19 @@ This configuration includes:
 
 ## Deployment
 
-Deploy the TempoStack and MinIO configuration:
+Deploy the TempoStack and MinIO configuration using Helm:
 
 ```bash
-kubectl apply -k .
+helm install tempo-stack .
 ```
 
 This will create:
 - MinIO deployment with persistent storage (12Gi)
 - MinIO service and credentials
-- TempoStack instance configured for multitenancy
+- TempoStack instance configured for multitenancy with Gateway access
 - Required RBAC permissions
+
+⚠️ **Important Configuration Fix**: This chart resolves the gateway/Jaeger ingress conflict by using the recommended Gateway approach. See [`CONFIGURATION_FIX.md`](./CONFIGURATION_FIX.md) for details.
 
 ## Configuration Details
 
@@ -52,7 +54,7 @@ This will create:
 - **Resources**: 10Gi memory, 5000m CPU limits
 - **Multitenancy**: Enabled with OpenShift mode
 - **Tenant**: `dev` tenant pre-configured
-- **UI**: Jaeger Query UI enabled with OpenShift Route
+- **UI Access**: Gateway enabled, accessible via OpenShift Console (Observe -> Traces)
 
 ### RBAC
 - **ClusterRole**: `tempostack-traces-reader` for trace access
@@ -60,11 +62,17 @@ This will create:
 
 ## Accessing Tempo
 
-After deployment, you can access the Jaeger Query UI through the OpenShift Route created by the operator. Find the route with:
+After deployment, access traces via the **OpenShift Console**:
 
+1. Navigate to **Observe -> Traces** in the OpenShift console
+2. Ensure the **COO UIPlugin** is installed (see observability documentation)
+
+Alternative: Check for gateway services:
 ```bash
-oc get routes -n observability-hub
+oc get services -n observability-hub -l app.kubernetes.io/component=gateway
 ```
+
+**Note**: The legacy Jaeger Query UI route has been disabled in favor of the modern Gateway + COO UIPlugin approach.
 
 ## Security Considerations
 

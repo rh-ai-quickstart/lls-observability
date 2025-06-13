@@ -26,7 +26,9 @@ helm install tempo-operator .
 This will:
 - Create the `openshift-tempo-operator` namespace
 - Install the Tempo Operator via OLM subscription
-- Set up the necessary OperatorGroup
+- Set up the necessary OperatorGroup with cluster-wide scope (AllNamespaces install mode)
+
+**Important Note**: The Tempo operator requires cluster-wide installation (AllNamespaces install mode) and does not support namespace-scoped installation (OwnNamespace mode). The OperatorGroup is configured with an empty `targetNamespaces` array to enable cluster-wide scope while keeping the operator installed in its dedicated namespace.
 
 ### 2. Deploy TempoStack with Storage
 

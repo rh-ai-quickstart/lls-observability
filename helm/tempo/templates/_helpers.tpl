@@ -81,3 +81,14 @@ Create the namespace
 {{- define "tempo-stack.namespace" -}}
 {{- .Values.global.namespace }}
 {{- end }}
+
+{{/*
+Create a cluster-scoped resource name that includes namespace to avoid conflicts.
+This is used for ClusterRole and ClusterRoleBinding names to ensure uniqueness
+across different Helm releases and namespaces.
+*/}}
+{{- define "tempo-stack.clusterResourceName" -}}
+{{- $fullname := include "tempo-stack.fullname" . -}}
+{{- $namespace := include "tempo-stack.namespace" . -}}
+{{- printf "%s-%s" $namespace $fullname | trunc 63 | trimSuffix "-" }}
+{{- end }}

@@ -1,0 +1,15 @@
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  name: {{ include "otel-operator.operatorGroupName" . }}
+  namespace: {{ include "otel-operator.namespace" . }}
+  labels:
+    {{- include "otel-operator.labels" . | nindent 4 }}
+  annotations:
+    {{- include "otel-operator.annotations" . | nindent 4 }}
+spec:
+  upgradeStrategy: Default
+  {{- if .Values.operatorGroup.targetNamespaces }}
+  targetNamespaces:
+    {{- toYaml .Values.operatorGroup.targetNamespaces | nindent 4 }}
+  {{- end }}

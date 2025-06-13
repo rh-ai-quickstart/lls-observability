@@ -37,6 +37,15 @@ helm install tempo-operator ./helm/tempo-operator \
 | `operator.subscription.source` | Operator source | `redhat-operators` |
 | `operator.subscription.sourceNamespace` | Source namespace | `openshift-marketplace` |
 
+### OperatorGroup Configuration
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `operator.operatorGroup.name` | OperatorGroup name | `openshift-tempo-operator` |
+| `operator.operatorGroup.targetNamespaces` | Target namespaces for operator scope | `[]` (cluster-wide) |
+
+**Important:** The OperatorGroup is configured for cluster-wide scope (AllNamespaces install mode) because the Tempo operator does not support OwnNamespace install mode. An empty `targetNamespaces` array enables the operator to watch all namespaces while being installed in the `openshift-tempo-operator` namespace. The OperatorGroup automatically includes `upgradeStrategy: Default` for proper operator lifecycle management.
+
 ### Namespace Configuration
 
 | Parameter | Description | Default |

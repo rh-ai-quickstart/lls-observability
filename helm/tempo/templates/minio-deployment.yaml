@@ -52,6 +52,8 @@ spec:
               mkdir -p /storage/{{ .Values.minio.s3.bucket }} && \
               /usr/bin/docker-entrypoint.sh minio server /storage --console-address ":{{ .Values.minio.service.ports.console }}"
           env:
+            - name: HOME
+              value: "/tmp"
             - name: MINIO_ROOT_USER
               valueFrom:
                 secretKeyRef:

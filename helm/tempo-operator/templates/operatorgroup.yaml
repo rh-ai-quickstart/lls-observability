@@ -9,4 +9,9 @@ metadata:
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
-spec: {}
+spec:
+  upgradeStrategy: Default
+  {{- if .Values.operator.operatorGroup.targetNamespaces }}
+  targetNamespaces:
+    {{- toYaml .Values.operator.operatorGroup.targetNamespaces | nindent 4 }}
+  {{- end }}

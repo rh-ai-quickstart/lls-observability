@@ -20,6 +20,10 @@ operator:
   # OperatorGroup configuration
   operatorGroup:
     name: openshift-tempo-operator
+    # Target namespaces for the operator group
+    # Empty array [] enables cluster-wide scope (AllNamespaces install mode)
+    # This is required for Tempo operator as it doesn't support OwnNamespace mode
+    targetNamespaces: []
 
 # Namespace configuration
 namespace:

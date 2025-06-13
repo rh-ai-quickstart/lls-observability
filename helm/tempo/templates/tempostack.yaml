@@ -37,5 +37,7 @@ spec:
     queryFrontend:
       jaegerQuery:
         enabled: {{ .Values.tempoStack.template.queryFrontend.jaegerQuery.enabled }}
+        {{- if .Values.tempoStack.template.queryFrontend.jaegerQuery.ingress }}
         ingress:
           type: {{ .Values.tempoStack.template.queryFrontend.jaegerQuery.ingress.type }}
+        {{- end }}
