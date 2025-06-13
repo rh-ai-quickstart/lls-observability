@@ -2,8 +2,10 @@
 replicaCount: 1
 
 image:
-  repository: 'quay.io/modh/vllm@sha256:'
-  tag: "0d55419f3d168fd80868a36ac89815dded9e063937a8409b7edf3529771383f3"
+  # repository: 'quay.io/modh/vllm@sha256:'
+  # tag: "0d55419f3d168fd80868a36ac89815dded9e063937a8409b7edf3529771383f3"
+  repository: 'quay.io/rcarrata/vllm-otlp-tracing@sha256:'
+  tag: "16f83f5858fcc04bd56ea785126c04af823e8aacbeabb9db963f86d252178189"
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []
@@ -169,6 +171,14 @@ servingRuntime:
   shmSizeLimit: "1Gi"
   memBufferBytes: 134217728  # 128MB
   modelLoadingTimeoutMillis: 90000  # 90 seconds
+  
+  # OpenTelemetry tracing configuration
+  tracing:
+    enabled: true
+    otlpTracesEndpoint: "http://otel-collector.observability-hub.svc.cluster.local::4317"
+    collectDetailedTraces: "all"
+    serviceName: "vllm-llama32b"
+    insecure: true
 
 # Network Policies
 networkPolicy:

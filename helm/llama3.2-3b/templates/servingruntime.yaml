@@ -28,9 +28,22 @@ spec:
     - '--enable-auto-tool-choice'
     - '--tool-call-parser'
     - llama3_json
+    {{- if .Values.servingRuntime.tracing.enabled }}
+    # tracing-specific flags and options
+    - --otlp-traces-endpoint
+    - {{ .Values.servingRuntime.tracing.otlpTracesEndpoint }}
+    - --collect-detailed-traces
+    - {{ .Values.servingRuntime.tracing.collectDetailedTraces | quote }}
+    {{- end }}
     env:
     - name: HF_HOME
       value: /tmp/hf_home
+    {{- if .Values.servingRuntime.tracing.enabled }}
+    - name: OTEL_SERVICE_NAME
+      value: {{ .Values.servingRuntime.tracing.serviceName | quote }}
+    - name: OTEL_EXPORTER_OTLP_TRACES_INSECURE
+      value: {{ .Values.servingRuntime.tracing.insecure | quote }}
+    {{- end }}
     {{- range $key, $value := .Values.env }}
     {{- if ne $key "HF_HOME" }}
     - name: {{ $key }}

@@ -1,0 +1,69 @@
+{{- if .Values.otelCollector.enabled }}
+# Once this exists, any pod with the template.metadata.annotation below will send metrics
+# to observability-hub:
+# sidecar.opentelemetry.io/inject: {{ .Values.otelCollector.name }}
+apiVersion: opentelemetry.io/v1beta1
+kind: OpenTelemetryCollector
+metadata:
+  name: {{ .Values.otelCollector.name | default "llamastack-otelsidecar" }}
+  labels:
+    {{- include "llama-stack.labels" . | nindent 4 }}
+spec:
+  observability:
+    metrics: 
+      {{- toYaml .Values.otelCollector.observability.metrics | nindent 6 }}
+  deploymentUpdateStrategy: 
+    {{- toYaml .Values.otelCollector.deploymentUpdateStrategy | nindent 4 }}
+  config:
+    exporters:
+      debug: {}
+      otlphttp:
+        # all sidecars export to the central observability-hub otel-collector, then be
+        # exported to various backends from there (in-cluster, external 3rd party)
+        # this is deployed with ../observability/otel-collector manifests
+        # see ../observability/README.md for how to deploy this collector
+        endpoint: {{ .Values.otelCollector.exporter.endpoint | quote }}
+        tls:
+          insecure: {{ .Values.otelCollector.exporter.tls.insecure }}
+    processors: {}
+    receivers:
+      otlp:
+        protocols:
+          grpc: {}
+          http: {}
+    service:
+      pipelines:
+        traces:
+          exporters:
+            - debug
+            - otlphttp
+          receivers:
+            - otlp
+      telemetry:
+        metrics:
+          address: {{ .Values.otelCollector.observability.metrics.address | default "0.0.0.0:8888" | quote }}
+  mode: {{ .Values.otelCollector.mode | default "sidecar" }}
+  resources: 
+    {{- toYaml .Values.otelCollector.resources | nindent 4 }}
+  podDnsConfig: 
+    {{- toYaml .Values.otelCollector.podDnsConfig | nindent 4 }}
+  managementState: {{ .Values.otelCollector.managementState | default "managed" }}
+  upgradeStrategy: {{ .Values.otelCollector.upgradeStrategy | default "automatic" }}
+  ingress:
+    route: 
+      {{- toYaml .Values.otelCollector.ingress.route | nindent 6 }}
+  daemonSetUpdateStrategy: 
+    {{- toYaml .Values.otelCollector.daemonSetUpdateStrategy | nindent 4 }}
+  targetAllocator:
+    allocationStrategy: {{ .Values.otelCollector.targetAllocator.allocationStrategy | default "consistent-hashing" }}
+    filterStrategy: {{ .Values.otelCollector.targetAllocator.filterStrategy | default "relabel-config" }}
+    observability:
+      metrics: 
+        {{- toYaml .Values.otelCollector.targetAllocator.observability.metrics | nindent 8 }}
+    prometheusCR:
+      scrapeInterval: {{ .Values.otelCollector.targetAllocator.scrapeInterval | default "30s" }}
+    resources: 
+      {{- toYaml .Values.otelCollector.targetAllocator.resources | nindent 6 }}
+  replicas: {{ .Values.otelCollector.replicas | default 1 }}
+  ipFamilyPolicy: {{ .Values.otelCollector.ipFamilyPolicy | default "SingleStack" }}
+{{- end }}

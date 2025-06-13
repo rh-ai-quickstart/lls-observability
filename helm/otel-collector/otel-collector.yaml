@@ -51,14 +51,14 @@ spec:
             #         - 'safety.llama-serve.svc.cluster.local:8000'
       otlp:
         protocols:
-          grpc: {}
-            #endpoint: 0.0.0.0:4317
+          grpc:
+            endpoint: 0.0.0.0:4317
             #tls:
             #  cert_file: /certs/server.crt
             #  client_ca_file: /certs/ca.crt
             #  key_file: /certs/server.key
-          http: {}
-            #endpoint: 0.0.0.0:4318
+          http:
+            endpoint: 0.0.0.0:4318
             #tls:
             #  cert_file: /certs/server.crt
             #  client_ca_file: /certs/ca.crt
