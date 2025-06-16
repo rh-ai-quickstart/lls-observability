@@ -1,0 +1,15 @@
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  name: {{ include "cluster-observability-operator.operatorGroupName" . }}
+  namespace: {{ include "cluster-observability-operator.namespace" . }}
+  labels:
+    {{- include "cluster-observability-operator.labels" . | nindent 4 }}
+  annotations:
+    {{- include "cluster-observability-operator.annotations" . | nindent 4 }}
+spec:
+  upgradeStrategy: Default
+  {{- if .Values.operatorGroup.targetNamespaces }}
+  targetNamespaces:
+    {{- toYaml .Values.operatorGroup.targetNamespaces | nindent 4 }}
+  {{- end }}

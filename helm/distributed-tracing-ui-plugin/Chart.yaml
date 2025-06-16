@@ -1,0 +1,24 @@
+apiVersion: v2
+name: distributed-tracing-ui-plugin
+description: Helm chart for OpenShift Distributed Tracing UI Plugin
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+keywords:
+  - observability
+  - tracing
+  - ui-plugin
+  - openshift
+  - distributed-tracing
+home: https://github.com/company/llama-stack-observability
+sources:
+  - https://github.com/company/llama-stack-observability
+maintainers:
+  - name: Observability Engineering Team
+    email: observability-engineering@company.com
+annotations:
+  category: Observability
+  openshift.io/display-name: "Distributed Tracing UI Plugin"
+  openshift.io/provider-display-name: "Observability Team"
+  openshift.io/documentation-url: "https://docs.openshift.com/container-platform/latest/observability/distributed-tracing/"
+  openshift.io/support-url: "https://support.company.com"

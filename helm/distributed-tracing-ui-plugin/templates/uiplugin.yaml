@@ -1,0 +1,17 @@
+apiVersion: observability.openshift.io/v1alpha1
+kind: UIPlugin
+metadata:
+  name: {{ include "distributed-tracing-ui-plugin.uiPluginName" . }}
+  labels:
+    {{- include "distributed-tracing-ui-plugin.uiPluginLabels" . | nindent 4 }}
+  {{- with include "distributed-tracing-ui-plugin.uiPluginAnnotations" . }}
+  annotations:
+    {{- . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.uiPlugin.type }}
+  {{- if .Values.advanced.enabled }}
+  {{- if .Values.advanced.spec }}
+  {{- toYaml .Values.advanced.spec | nindent 2 }}
+  {{- end }}
+  {{- end }}

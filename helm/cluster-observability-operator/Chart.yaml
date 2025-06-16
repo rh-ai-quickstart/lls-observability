@@ -1,0 +1,25 @@
+apiVersion: v2
+name: cluster-observability-operator
+description: Helm chart for OpenShift Cluster Observability Operator
+type: application
+version: 0.1.0
+appVersion: "1.2.0"
+keywords:
+  - observability
+  - operator
+  - cluster
+  - monitoring
+  - telemetry
+  - openshift
+home: https://github.com/openshift/cluster-observability-operator
+sources:
+  - https://github.com/openshift/cluster-observability-operator
+maintainers:
+  - name: Observability Engineering Team
+    email: observability-engineering@company.com
+annotations:
+  category: Observability
+  openshift.io/display-name: "Cluster Observability Operator"
+  openshift.io/provider-display-name: "Observability Engineering Team"
+  openshift.io/documentation-url: "https://docs.openshift.com/container-platform/latest/observability/cluster_observability_operator/cluster-observability-operator-overview.html"
+  openshift.io/support-url: "https://support.company.com"

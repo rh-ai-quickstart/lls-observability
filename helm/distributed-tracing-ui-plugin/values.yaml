@@ -1,0 +1,71 @@
+# Default values for distributed-tracing-ui-plugin
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# UIPlugin configuration
+uiPlugin:
+  # The name of the UIPlugin resource
+  # Note: For distributed tracing, this should typically be "distributed-tracing"
+  # as per OpenShift documentation requirements
+  name: distributed-tracing
+  
+  # The type of UI plugin
+  type: DistributedTracing
+  
+  # Additional labels to apply to the UIPlugin resource
+  labels: {}
+  
+  # Additional annotations to apply to the UIPlugin resource
+  annotations: {}
+
+# Override the name of the chart
+nameOverride: ""
+
+# Override the full name of the resources
+fullnameOverride: ""
+
+# Additional metadata
+metadata:
+  # Additional labels to apply to all resources
+  commonLabels: {}
+  
+  # Additional annotations to apply to all resources
+  commonAnnotations: {}
+
+# OpenShift specific configurations
+openshift:
+  # Whether this is deployed on OpenShift
+  enabled: true
+  
+  # OpenShift project/namespace specific settings
+  project:
+    # Project display name
+    displayName: "Distributed Tracing"
+    
+    # Project description
+    description: "OpenShift Distributed Tracing UI Plugin for enhanced observability"
+
+# Resource management (if needed for future extensions)
+resources:
+  # Limits and requests can be specified here if the UIPlugin
+  # spec is extended to support resource requirements
+  limits: {}
+  requests: {}
+
+# Monitoring and observability
+monitoring:
+  # Enable monitoring labels
+  enabled: true
+  
+  # Additional monitoring labels
+  labels:
+    app.kubernetes.io/component: ui-plugin
+    app.kubernetes.io/part-of: observability
+
+# Advanced configuration
+advanced:
+  # Enable advanced UIPlugin features if supported
+  enabled: false
+  
+  # Additional spec configurations
+  spec: {}
