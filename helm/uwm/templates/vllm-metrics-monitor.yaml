@@ -1,0 +1,51 @@
+{{- if .Values.vllmMetricsMonitor.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: {{ .Values.vllmMetricsMonitor.name }}
+  namespace: {{ include "uwm.targetNamespace" . }}
+  labels:
+    {{- include "uwm.labels" . | nindent 4 }}
+    {{- with .Values.vllmMetricsMonitor.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+    {{- with .Values.common.commonLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.common.commonAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  podMetricsEndpoints:
+  {{- range .Values.vllmMetricsMonitor.podMetricsEndpoints }}
+  - interval: {{ .interval | default $.Values.common.defaultInterval }}
+    path: {{ .path | default $.Values.common.defaultPath }}
+    {{- if .port }}
+    port: {{ .port }}
+    {{- end }}
+    {{- if .bearerTokenSecret }}
+    {{- if .bearerTokenSecret.name }}
+    bearerTokenSecret:
+      name: {{ .bearerTokenSecret.name }}
+      key: {{ .bearerTokenSecret.key | default "" }}
+    {{- end }}
+    {{- end }}
+  {{- end }}
+  selector:
+    {{- with .Values.vllmMetricsMonitor.selector.matchLabels }}
+    matchLabels:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- with .Values.vllmMetricsMonitor.selector.matchExpressions }}
+    matchExpressions:
+    {{- range . }}
+    - key: {{ .key }}
+      operator: {{ .operator }}
+      values:
+      {{- range .values }}
+      - {{ . | quote }}
+      {{- end }}
+    {{- end }}
+    {{- end }}
+{{- end }}

@@ -1,15 +1,10 @@
-# Llama Stack Observability
-
-A comprehensive repository providing complete observability and deployment solutions for Llama Stack infrastructure on OpenShift. This project combines monitoring, tracing, and visualization capabilities with ready-to-use Helm charts for deploying AI workloads at scale.
+# Llama Stack Telemtry & Observability
 
 ## Overview
 
-This repository contains two main components:
+Observability & telemetry kickstart for both Llama-Stack and OpenShift AI.
 
-1. **[Observability Stack](./observability/)** - Complete monitoring and tracing infrastructure for AI workloads
-2. **[Helm Charts](./helm/)** - Production-ready deployment templates for Llama Stack and related services
-
-Together, these components provide a full-stack solution for deploying, monitoring, and observing AI applications in enterprise Kubernetes environments.
+This repository provides helm charts for deploying AI services with telemetry and observability on Llama-Stack, OpenShift and OpenShift AI.
 
 Jump straight to [installation](#installation) to get started quickly.
 
@@ -18,8 +13,6 @@ Jump straight to [installation](#installation) to get started quickly.
 - [Description](#description)
 - [Architecture](#architecture)
 - [Components](#components)
-  - [Observability Stack](#observability-stack)
-  - [Helm Charts](#helm-charts)
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Advanced Usage](#advanced-usage)
@@ -27,76 +20,64 @@ Jump straight to [installation](#installation) to get started quickly.
 
 ## Description
 
-The Llama Stack Observability project addresses the critical need for comprehensive monitoring and easy deployment of Large Language Model (LLM) infrastructure. As AI workloads become increasingly complex and mission-critical, organizations require:
+This telemetry and observability kickstart addresses the critical needs for Large Language Model (LLM) infrastructure. As AI workloads become more complex, organizations need:
 
-- **Complete observability** into model performance, resource utilization, and distributed tracing
+- **AI observability** into model performance, resource utilization, and distributed tracing
 - **Standardized deployment patterns** for consistent, scalable AI service delivery
 - **Enterprise-grade monitoring** with OpenShift-native observability tools
 - **Production-ready configurations** that follow cloud-native best practices
 
-This repository provides both the monitoring infrastructure and deployment automation needed to run Llama Stack reliably in production environments.
+This repository provides helm charts for both the monitoring infrastructure and AI service deployments needed to run Llama Stack reliably in production environments.
 
 ## Architecture
 
-The observability stack integrates seamlessly with OpenShift's native monitoring capabilities:
+The proposed observability & telemetry architecture:
 
-```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   AI Workloads  │───▶│ OpenTelemetry   │───▶│    Backends     │
-│                 │    │   Collector     │    │                 │
-│ • Llama Stack   │    │                 │    │ • Tempo (Traces)│
-│ • vLLM          │    │ • Metrics       │    │ • Prometheus    │
-│ • Custom Apps   │    │ • Traces        │    │ • Grafana       │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-```
-
-For detailed architecture information, see the [observability architecture diagram](./observability/diagram-overview.md).
+![observability architecture diagram](./assets/images/architecture.png).
 
 ## Components
 
-### Observability Stack
+All components are available as helm charts in the [`./helm/`](./helm/) directory:
 
-Located in [`./observability/`](./observability/), this component provides:
+### Operators
+- **[`cluster-observability-operator`](./helm/cluster-observability-operator/)** - PodMonitor/ServiceMonitor CRDs and UI plugins
+- **[`otel-operator`](./helm/otel-operator/)** - Red Hat Build of OpenTelemetry operator
+- **[`tempo-operator`](./helm/tempo-operator/)** - Distributed tracing backend operator
 
-#### Core Operators
-- **Red Hat Build of OpenTelemetry** - Telemetry collection and processing
-- **Tempo Operator** - Distributed tracing backend with S3-compatible storage
-- **Cluster Observability Operator** - PodMonitor/ServiceMonitor CRDs and UI plugins
-- **Grafana Operator** - Visualization and dashboard management
+### Observability Components
+- **[`otel-collector`](./helm/otel-collector/)** - OpenTelemetry collector configurations for telemetry collection and processing
+- **[`tempo`](./helm/tempo/)** - Distributed tracing backend with S3-compatible storage
+- **[`grafana`](./helm/grafana/)** - Visualization and dashboard management with pre-built dashboards
+- **[`uwm`](./helm/uwm/)** - User Workload Monitoring with PodMonitors for VLLM and AI workloads
+- **[`distributed-tracing-ui-plugin`](./helm/distributed-tracing-ui-plugin/)** - OpenShift console integration for tracing
 
-#### Monitoring Components
-- **[PodMonitor Examples](./observability/podmonitor-example-0.yaml)** - Pod-level metrics collection
-- **[ServiceMonitor Examples](./observability/servicemonitor-example.yaml)** - Service-level metrics collection
-- **[OpenTelemetry Collectors](./observability/otel-collector/)** - Central and sidecar deployment patterns
-- **[Tempo Configuration](./observability/tempo/)** - Distributed tracing with MinIO storage
-
-#### Visualization
-- **[Grafana Dashboards](./observability/grafana/)** - Pre-built dashboards for vLLM and cluster metrics
-- **[UI Plugins](./observability/tracing-ui-plugin.yaml)** - OpenShift console integration for tracing
-- **Custom Dashboards** - Extensible dashboard configurations
-
-#### Load Testing
-- **[GuideLL](./observability/guidellm/)** - AI workload load testing and performance validation
-
-### Helm Charts
-
-Located in [`./helm/`](./helm/), providing production-ready deployments:
-
-#### Core AI Services
+### AI Services
 - **[`llama-stack`](./helm/llama-stack/)** - Complete Llama Stack deployment with configurable endpoints
 - **[`llama3.2-3b`](./helm/llama3.2-3b/)** - Optimized Llama 3.2 3B model deployment on vLLM
-- **[`llama-stack-playground`](./helm/llama-stack-playground/)** - Interactive web interface for testing
+- **[`llama-stack-playground`](./helm/llama-stack-playground/)** - Interactive Llama-Stack web interface for testing
 
-#### Supporting Services
-- **[`mcp-weather`](./helm/mcp-weather/)** - Model Context Protocol weather service example
-- **[`hr-api`](./helm/hr-api/)** - Human Resources API demonstration service
+### MCP Servers
+- **[`mcp-weather`](./helm/mcp-weather/)** - MCP weather service
+- **[`hr-api`](./helm/hr-api/)** - MCP HR API demonstration service
 
-Each chart includes:
-- Configurable resource limits and requests
-- Service accounts and RBAC configurations
-- Ingress/Route configurations for OpenShift
-- ConfigMap management for application settings
-- Production-ready security configurations
+## Observability in Action
+
+The telemetry and observability stack provides comprehensive visibility into AI workload performance and distributed system behavior.
+
+### Distributed Tracing Examples
+
+![Llama Stack Request Tracing](assets/images/traces1.png)
+
+**End-to-End Request Tracing**: Complete visibility into AI inference request flows through the Llama Stack infrastructure.
+
+![Detailed Service Interaction Tracing](assets/images/traces2.png)
+
+**Create Agent from LlamaStack Tracing**: Detailed trace view showing complex interactions between different services in the AI stack.
+
+These traces provide insights into:
+- Request latency and service dependencies
+- Error tracking and performance bottlenecks
+- Load distribution across model endpoints
 
 ## Requirements
 
@@ -113,18 +94,28 @@ Each chart includes:
 - **Helm 3.8+** for chart deployment
 - **oc CLI** or **kubectl** for cluster management
 
-### Required Operators (for Observability)
+### Required Operators
 
-Install from OperatorHub:
+Install these operators from OperatorHub before deploying the observability stack:
+
+```bash
+# Install operators using helm charts
+helm install cluster-observability-operator ./helm/cluster-observability-operator
+helm install otel-operator ./helm/otel-operator
+helm install tempo-operator ./helm/tempo-operator
+```
+
+Or install manually from OperatorHub:
 - Red Hat Build of OpenTelemetry Operator
 - Tempo Operator  
 - Cluster Observability Operator
-- Grafana Operator (optional, for enhanced visualization)
+- Grafana Operator
+
+> TODO: Add Grafana operator to the helm charts
 
 ### Required Permissions
 
 - **Cluster Admin** - Required for operator installation and observability stack setup
-- **Namespace Admin** - Sufficient for Helm chart deployments in designated namespaces
 - **GPU Access** - Required for AI workload deployment
 
 ## Installation
@@ -132,15 +123,31 @@ Install from OperatorHub:
 ### Quick Start - Complete Stack
 
 ```bash
-# 1. Create observability namespace
+# 1. Create required namespaces
 oc create namespace observability-hub
+oc create namespace openshift-user-workload-monitoring
 
-# 2. Deploy observability infrastructure
-oc apply --kustomize ./observability/tempo -n observability-hub
-oc apply --kustomize ./observability/otel-collector -n observability-hub
-oc apply --kustomize ./observability/grafana/instance-with-prom-tempo-ds -n observability-hub
+# 2. Install required operators
+helm install cluster-observability-operator ./helm/cluster-observability-operator
+helm install otel-operator ./helm/otel-operator
+helm install tempo-operator ./helm/tempo-operator
 
-# 3. Deploy AI workloads
+# 3. Wait for operators to be ready
+oc wait --for=condition=Ready pod -l app.kubernetes.io/name=cluster-observability-operator -n openshift-cluster-observability-operator --timeout=300s
+
+# 4. Deploy observability infrastructure
+helm install tempo ./helm/tempo -n observability-hub
+helm install otel-collector ./helm/otel-collector -n observability-hub
+helm install grafana ./helm/grafana -n observability-hub
+
+# 5. Enable User Workload Monitoring for AI workloads
+helm install uwm ./helm/uwm -n observability-hub
+
+# Verify UWM setup
+oc get configmap user-workload-monitoring-config -n openshift-user-workload-monitoring
+oc get podmonitors -n observability-hub
+
+# 6. Deploy AI workloads
 helm install llama3-2-3b ./helm/llama3.2-3b \
   --set model.name="meta-llama/Llama-3.2-3B-Instruct" \
   --set resources.limits."nvidia\.com/gpu"=1
@@ -154,25 +161,10 @@ helm install llama-stack ./helm/llama-stack \
 helm install llama-stack-playground ./helm/llama-stack-playground \
   --set playground.llamaStackUrl="http://llama-stack:80"
 
-# 4. Enable tracing UI
-oc apply -f ./observability/tracing-ui-plugin.yaml
+# 7. Enable tracing UI
+helm install distributed-tracing-ui-plugin ./helm/distributed-tracing-ui-plugin
 ```
 
-### Observability-Only Installation
-
-For monitoring existing AI workloads:
-
-```bash
-# Deploy observability stack only
-oc create namespace observability-hub
-oc apply --kustomize ./observability/tempo -n observability-hub
-oc apply --kustomize ./observability/otel-collector -n observability-hub
-oc apply -f ./observability/tracing-ui-plugin.yaml
-
-# Create monitors for existing workloads
-oc apply -f ./observability/podmonitor-example-0.yaml
-oc apply -f ./observability/servicemonitor-example.yaml
-```
 
 ## Advanced Usage
 
@@ -208,53 +200,9 @@ helm install llama-stack-playground ./helm/llama-stack-playground \
   --set playground.llamaStackUrl="http://llama-stack:80"
 ```
 
-### Custom Observability Configuration
-
-#### Sidecar OpenTelemetry Collectors
-
-Add telemetry collection to any deployment with annotations:
-
-```yaml
-# For vLLM workloads
-template:
-  metadata:
-    annotations:
-      sidecar.opentelemetry.io/inject: vllm-otelsidecar
-
-# For Llama Stack workloads  
-template:
-  metadata:
-    annotations:
-      sidecar.opentelemetry.io/inject: llamastack-otelsidecar
-```
-
-#### Custom Grafana Dashboards
-
-```bash
-# Deploy vLLM dashboard
-oc apply -n observability-hub -f ./observability/grafana/vllm-dashboard/vllm-dashboard.yaml
-
-# Deploy cluster metrics dashboard
-oc apply -n observability-hub -f ./observability/grafana/cluster-metrics-dashboard/cluster-metrics.yaml
-```
-
-### Load Testing with GuideLL
-
-```bash
-# Deploy GuideLL for performance testing
-oc apply -f ./observability/guidellm/pvc.yaml
-oc apply -f ./observability/guidellm/guidellm-job.yaml
-```
-
 ## References
 
 ### Documentation
-- [Observability Configuration Guide](./observability/run-configuration.md)
-- [Architecture Overview](./observability/diagram-overview.md)
-- [vLLM Distributed Tracing](./observability/vllm-distributed-tracing.md)
-- [GuideLL Load Testing](./observability/guidellm/README.md)
-
-### OpenShift Documentation
 - [OpenShift Distributed Tracing (Tempo)](https://docs.redhat.com/en/documentation/openshift_container_platform/4.18/html/distributed_tracing/distributed-tracing-platform-tempo)
 - [OpenShift Observability](https://docs.redhat.com/en/documentation/openshift_container_platform/4.18/html/monitoring)
 - [User Workload Monitoring](https://docs.redhat.com/en/documentation/openshift_container_platform/4.18/html/monitoring/enabling-monitoring-for-user-defined-projects)

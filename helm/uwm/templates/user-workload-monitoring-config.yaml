@@ -1,0 +1,24 @@
+{{- if .Values.userWorkloadMonitoring.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.userWorkloadMonitoring.configMapName }}
+  namespace: {{ .Values.userWorkloadMonitoring.namespace }}
+  labels:
+    {{- include "uwm.labels" . | nindent 4 }}
+    {{- with .Values.userWorkloadMonitoring.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.userWorkloadMonitoring.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+data:
+  config.yaml: |
+    prometheus:
+      logLevel: {{ .Values.userWorkloadMonitoring.prometheus.logLevel }}
+      retention: {{ .Values.userWorkloadMonitoring.prometheus.retention }}
+    alertmanager:
+      enabled: {{ .Values.userWorkloadMonitoring.alertmanager.enabled }}
+      enableAlertmanagerConfig: {{ .Values.userWorkloadMonitoring.alertmanager.enableAlertmanagerConfig }}
+{{- end }}
