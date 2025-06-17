@@ -175,7 +175,7 @@ servingRuntime:
   # OpenTelemetry tracing configuration
   tracing:
     enabled: true
-    otlpTracesEndpoint: "http://otel-collector.observability-hub.svc.cluster.local::4317"
+    otlpTracesEndpoint: "grpc://otel-collector-collector.observability-hub.svc.cluster.local:4317"
     collectDetailedTraces: "all"
     serviceName: "vllm-llama32b"
     insecure: true
