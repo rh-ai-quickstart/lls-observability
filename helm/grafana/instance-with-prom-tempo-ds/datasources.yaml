@@ -42,7 +42,7 @@ spec:
     type: tempo
     access: proxy
     editable: true
-    url: "https://tempo-tempostack-gateway.observability-hub.svc.cluster.local:8081"
+    url: "https://tempo-tempostack-gateway.observability-hub.svc.cluster.local:8081/api/traces/v1/dev/tempo"
     isDefault: false
     secureJsonData:
       httpHeaderValue1: "Bearer ${token}"

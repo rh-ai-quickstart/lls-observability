@@ -41,6 +41,7 @@ All components are available as helm charts in the [`./helm/`](./helm/) director
 
 ### Operators
 - **[`cluster-observability-operator`](./helm/cluster-observability-operator/)** - PodMonitor/ServiceMonitor CRDs and UI plugins
+- **[`grafana-operator`](./helm/grafana-operator/)** - Grafana operator for visualization and dashboard management
 - **[`otel-operator`](./helm/otel-operator/)** - Red Hat Build of OpenTelemetry operator
 - **[`tempo-operator`](./helm/tempo-operator/)** - Distributed tracing backend operator
 
@@ -101,17 +102,16 @@ Install these operators from OperatorHub before deploying the observability stac
 ```bash
 # Install operators using helm charts
 helm install cluster-observability-operator ./helm/cluster-observability-operator
+helm install grafana-operator ./helm/grafana-operator
 helm install otel-operator ./helm/otel-operator
 helm install tempo-operator ./helm/tempo-operator
 ```
 
 Or install manually from OperatorHub:
 - Red Hat Build of OpenTelemetry Operator
-- Tempo Operator  
+- Tempo Operator
 - Cluster Observability Operator
 - Grafana Operator
-
-> TODO: Add Grafana operator to the helm charts
 
 ### Required Permissions
 
@@ -129,6 +129,7 @@ oc create namespace openshift-user-workload-monitoring
 
 # 2. Install required operators
 helm install cluster-observability-operator ./helm/cluster-observability-operator
+helm install grafana-operator ./helm/grafana-operator
 helm install otel-operator ./helm/otel-operator
 helm install tempo-operator ./helm/tempo-operator
 

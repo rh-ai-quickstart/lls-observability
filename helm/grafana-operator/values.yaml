@@ -1,0 +1,58 @@
+# Grafana Operator configuration
+
+# Namespace configuration
+namespace:
+  name: openshift-grafana-operator
+  create: true
+  annotations:
+    openshift.io/display-name: "Grafana Operator"
+  labels:
+    openshift.io/cluster-monitoring: 'true'
+
+# Operator subscription configuration
+subscription:
+  # Name of the subscription
+  name: grafana
+  # Package name for the operator
+  packageName: grafana-operator
+  # Channel to subscribe to (v5, stable, etc.)
+  channel: v5
+  # Source catalog containing the operator
+  source: community-operators
+  # Namespace where the catalog source is located
+  sourceNamespace: openshift-marketplace
+  # Installation plan approval mode
+  installPlanApproval: Automatic
+  # Starting CSV (leave empty for latest)
+  startingCSV: ""
+
+# OperatorGroup configuration
+operatorGroup:
+  # Name of the operator group
+  name: openshift-grafana-operator
+  # Target namespaces (empty for all namespaces)
+  targetNamespaces: []
+
+# Global labels to apply to all resources
+commonLabels: {}
+
+# Global annotations to apply to all resources
+commonAnnotations: {}
+
+# Resource limits and requests (if needed for operator pod)
+resources: {}
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+# Node selector for operator pod
+nodeSelector: {}
+
+# Tolerations for operator pod
+tolerations: []
+
+# Affinity for operator pod
+affinity: {}

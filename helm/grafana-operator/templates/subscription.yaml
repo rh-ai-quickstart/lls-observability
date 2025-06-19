@@ -1,0 +1,18 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: {{ include "grafana-operator.subscriptionName" . }}
+  namespace: {{ include "grafana-operator.namespace" . }}
+  labels:
+    {{- include "grafana-operator.labels" . | nindent 4 }}
+  annotations:
+    {{- include "grafana-operator.annotations" . | nindent 4 }}
+spec:
+  channel: {{ .Values.subscription.channel }}
+  installPlanApproval: {{ .Values.subscription.installPlanApproval }}
+  name: {{ .Values.subscription.packageName }}
+  source: {{ .Values.subscription.source }}
+  sourceNamespace: {{ .Values.subscription.sourceNamespace }}
+  {{- if .Values.subscription.startingCSV }}
+  startingCSV: {{ .Values.subscription.startingCSV }}
+  {{- end }}

@@ -1,0 +1,15 @@
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  name: {{ include "grafana-operator.operatorGroupName" . }}
+  namespace: {{ include "grafana-operator.namespace" . }}
+  labels:
+    {{- include "grafana-operator.labels" . | nindent 4 }}
+  annotations:
+    {{- include "grafana-operator.annotations" . | nindent 4 }}
+spec:
+  upgradeStrategy: Default
+  {{- if .Values.operatorGroup.targetNamespaces }}
+  targetNamespaces:
+    {{- toYaml .Values.operatorGroup.targetNamespaces | nindent 4 }}
+  {{- end }}

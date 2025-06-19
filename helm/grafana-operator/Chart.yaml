@@ -1,0 +1,25 @@
+apiVersion: v2
+name: grafana-operator
+description: A Helm chart for Grafana Operator on OpenShift
+type: application
+version: 1.0.0
+appVersion: "5.x"
+keywords:
+  - grafana
+  - operator
+  - monitoring
+  - observability
+  - visualization
+  - dashboards
+home: https://github.com/grafana-operator/grafana-operator
+sources:
+  - https://github.com/grafana-operator/grafana-operator
+maintainers:
+  - name: Observability Engineering Team
+    email: observability-engineering@company.com
+annotations:
+  category: Observability
+  openshift.io/display-name: "Grafana Operator"
+  openshift.io/provider-display-name: "Observability Engineering Team"
+  openshift.io/documentation-url: "https://docs.company.com/grafana-operator"
+  openshift.io/support-url: "https://support.company.com"
