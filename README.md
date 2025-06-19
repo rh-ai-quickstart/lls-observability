@@ -1,4 +1,4 @@
-# Llama Stack Telemtry & Observability
+# Llama Stack Telemetry & Observability
 
 ## Overview
 

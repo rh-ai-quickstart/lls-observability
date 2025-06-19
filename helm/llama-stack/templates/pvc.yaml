@@ -1,0 +1,19 @@
+# MinIO Persistent Volume Claim
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: llama-persist
+  labels:
+    {{- include "llama-stack.labels" . | nindent 4 }}
+  finalizers:
+  - kubernetes.io/pvc-protection
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.llamaStack.storage.size }}
+  {{- if .Values.llamaStack.storage.storageClass }}
+  storageClassName: {{ .Values.llamaStack.storage.storageClass }}
+  {{- end }}
+  volumeMode: Filesystem
