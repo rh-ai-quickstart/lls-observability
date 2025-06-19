@@ -143,7 +143,7 @@ Generate the Tempo gateway endpoint URL
 */}}
 {{- define "otel-collector.tempoGatewayEndpoint" -}}
 {{- with .Values.tempo.gateway }}
-{{- printf "%s://%s.%s.svc.cluster.local:%d%s" .protocol .endpoint .namespace .port .path }}
+{{- printf "%s://%s.%s.svc.cluster.local:%s%s" .protocol .endpoint .namespace .port .path }}
 {{- end }}
 {{- end }}
 

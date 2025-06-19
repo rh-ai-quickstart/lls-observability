@@ -35,7 +35,7 @@ model:
   # Alternative models:
   # name: "meta-llama/Llama-3.2-3B"
   maxModelLen: 8192
-  gpuMemoryUtilization: 0.9
+  gpuMemoryUtilization: 0.40
   quantization: ""  # Options: awq, gptq, squeezellm, fp8
   dtype: "auto"     # Options: auto, half, float16, bfloat16, float32
   
@@ -126,8 +126,7 @@ nodeSelector:
 
 tolerations:
   - effect: NoSchedule
-    key: nvidia.com/gpu
-    value: NVIDIA-A10G-SHARED
+    operator: Exists
 
 affinity:
   nodeAffinity:

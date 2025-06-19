@@ -167,10 +167,10 @@ tempo:
   # Tempo gateway endpoint configuration
   gateway:
     endpoint: "tempo-tempostack-gateway"
-    port: 8080
+    port: "8080"
     path: "/api/traces/v1/dev"
     protocol: "https"
-    namespace: "{{ .Values.global.namespace }}"
+    namespace: "observability-hub"
   
   # Tempo authentication
   auth:

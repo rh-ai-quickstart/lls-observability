@@ -135,6 +135,7 @@ helm install tempo-operator ./helm/tempo-operator
 
 # 3. Wait for operators to be ready
 oc wait --for=condition=Ready pod -l app.kubernetes.io/name=cluster-observability-operator -n openshift-cluster-observability-operator --timeout=300s
+oc wait --for=condition=Ready pod -l app.kubernetes.io/name=observability-operator -n openshift-cluster-observability-operator --timeout=300s
 
 # 4. Deploy observability infrastructure
 helm install tempo ./helm/tempo -n observability-hub
@@ -142,7 +143,7 @@ helm install otel-collector ./helm/otel-collector -n observability-hub
 helm install grafana ./helm/grafana -n observability-hub
 
 # 5. Enable User Workload Monitoring for AI workloads
-helm install uwm ./helm/uwm -n observability-hub
+helm template uwm ./helm/uwm -n observability-hub | oc apply -f-
 
 # Verify UWM setup
 oc get configmap user-workload-monitoring-config -n openshift-user-workload-monitoring
@@ -157,7 +158,9 @@ helm install mcp-weather ./helm/mcp-weather
 
 helm install llama-stack ./helm/llama-stack \
   --set inference.endpoints[0].url="http://llama3-2-3b:80/v1" \
-  --set mcpServers[0].uri="http://mcp-weather:80"
+  --set mcpServers[0].name="weather" \
+  --set mcpServers[0].uri="http://mcp-weather:80" \
+  --set mcpServers[0].description="Weather MCP Server for real-time weather data"
 
 helm install llama-stack-playground ./helm/llama-stack-playground \
   --set playground.llamaStackUrl="http://llama-stack:80"
@@ -191,7 +194,9 @@ helm install mcp-weather ./helm/mcp-weather
 ```bash
 helm install llama-stack ./helm/llama-stack \
   --set inference.endpoints[0].url="http://llama3-2-3b:80/v1" \
-  --set mcpServers[0].uri="http://mcp-weather:80" 
+  --set mcpServers[0].name="weather" \
+  --set mcpServers[0].uri="http://mcp-weather:80" \
+  --set mcpServers[0].description="Weather MCP Server for real-time weather data"
 ```
 
 #### Deploy the Playground

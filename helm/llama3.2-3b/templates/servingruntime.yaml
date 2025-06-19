@@ -23,6 +23,7 @@ spec:
     - --model=/mnt/models
     - --port=8080
     - --max-model-len={{ .Values.model.maxModelLen | default 8192 }}
+    - --gpu_memory_utilization={{ .Values.model.gpuMemoryUtilization | default 0.95 }}
     - '--served-model-name=llama3-2-3b'
     - --chat-template=/app/data/template/tool_chat_template_llama3.2_json.jinja
     - '--enable-auto-tool-choice'

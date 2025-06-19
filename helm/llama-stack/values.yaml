@@ -65,10 +65,10 @@ ingress:
 
 resources:
   limits:
-    cpu: 2000m
+    # cpu: 2000m
     memory: 4Gi
   requests:
-    cpu: 1000m
+    # cpu: 1000m
     memory: 2Gi
 
 livenessProbe:
@@ -106,7 +106,10 @@ llamaStack:
   configFile: "run-vllm.yaml"
   inferenceModel: "llama3-2-3b"
   vllmUrl: "http://llama3-2-3b-predictor:8080/v1"
-  
+  storage:
+    size: 5Gi
+
+
 # Model inference endpoints
 inference:
   endpoints:
