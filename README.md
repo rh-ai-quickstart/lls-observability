@@ -1,7 +1,5 @@
 # Llama Stack Telemetry & Observability
 
-## Overview
-
 Observability & telemetry kickstart for both Llama-Stack and OpenShift AI.
 
 This repository provides helm charts for deploying AI services with telemetry and observability on Llama-Stack, OpenShift and OpenShift AI.
@@ -10,15 +8,15 @@ Jump straight to [installation](#installation) to get started quickly.
 
 ## Table of Contents
 
-- [Description](#description)
-- [Architecture](#architecture)
-- [Components](#components)
+- [Detailed description](#detailed-description)
+    - [Architecture](#architecture)
+    - [Components](#components)
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Advanced Usage](#advanced-usage)
 - [References](#references)
 
-## Description
+## Detailed description
 
 This telemetry and observability kickstart addresses the critical needs for Large Language Model (LLM) infrastructure. As AI workloads become more complex, organizations need:
 
@@ -29,43 +27,43 @@ This telemetry and observability kickstart addresses the critical needs for Larg
 
 This repository provides helm charts for both the monitoring infrastructure and AI service deployments needed to run Llama Stack reliably in production environments.
 
-## Architecture
+### Architecture
 
 The proposed observability & telemetry architecture:
 
 ![observability architecture diagram](./assets/images/architecture.png).
 
-## Components
+### Components
 
 All components are available as helm charts in the [`./helm/`](./helm/) directory:
 
-### Operators
+#### Operators
 - **[`cluster-observability-operator`](./helm/cluster-observability-operator/)** - PodMonitor/ServiceMonitor CRDs and UI plugins
 - **[`grafana-operator`](./helm/grafana-operator/)** - Grafana operator for visualization and dashboard management
 - **[`otel-operator`](./helm/otel-operator/)** - Red Hat Build of OpenTelemetry operator
 - **[`tempo-operator`](./helm/tempo-operator/)** - Distributed tracing backend operator
 
-### Observability Components
+#### Observability Components
 - **[`otel-collector`](./helm/otel-collector/)** - OpenTelemetry collector configurations for telemetry collection and processing
 - **[`tempo`](./helm/tempo/)** - Distributed tracing backend with S3-compatible storage
 - **[`grafana`](./helm/grafana/)** - Visualization and dashboard management with pre-built dashboards
 - **[`uwm`](./helm/uwm/)** - User Workload Monitoring with PodMonitors for VLLM and AI workloads
 - **[`distributed-tracing-ui-plugin`](./helm/distributed-tracing-ui-plugin/)** - OpenShift console integration for tracing
 
-### AI Services
+#### AI Services
 - **[`llama-stack`](./helm/llama-stack/)** - Complete Llama Stack deployment with configurable endpoints
 - **[`llama3.2-3b`](./helm/llama3.2-3b/)** - Optimized Llama 3.2 3B model deployment on vLLM
 - **[`llama-stack-playground`](./helm/llama-stack-playground/)** - Interactive Llama-Stack web interface for testing
 
-### MCP Servers
+#### MCP Servers
 - **[`mcp-weather`](./helm/mcp-weather/)** - MCP weather service
 - **[`hr-api`](./helm/hr-api/)** - MCP HR API demonstration service
 
-## Observability in Action
+### Observability in Action
 
 The telemetry and observability stack provides comprehensive visibility into AI workload performance and distributed system behavior.
 
-### Distributed Tracing Examples
+#### Distributed Tracing Examples
 
 ![Llama Stack Request Tracing](assets/images/traces1.png)
 
