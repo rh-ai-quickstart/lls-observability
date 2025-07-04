@@ -1,0 +1,29 @@
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  name: llama-guard-3-1b
+  labels:
+    {{- include "llama-guard.labels" . | nindent 4 }}
+    opendatahub.io/dashboard: 'true'
+  annotations:
+    openshift.io/display-name: {{ .Values.inferenceService.displayName | default "Llama-Guard-3-1B" }}
+    serving.knative.openshift.io/enablePassthrough: 'true'
+    sidecar.istio.io/inject: 'true'
+    sidecar.istio.io/rewriteAppHTTPProbers: 'true'
+    serving.kserve.io/deploymentMode: RawDeployment
+  finalizers:
+    - serving.kserve.io/inferenceservice-finalizer
+spec:
+  predictor:
+    maxReplicas: {{ .Values.inferenceService.maxReplicas | default 1 }}
+    minReplicas: {{ .Values.inferenceService.minReplicas | default 1 }}
+    model:
+      modelFormat:
+        name: {{ .Values.inferenceService.modelFormat | default "vLLM" }}
+      name: {{ .Values.inferenceService.modelName | default "" }}
+      resources:
+        {{- toYaml .Values.resources | nindent 8 }}
+      runtime: llama-guard-3-1b
+      storageUri: {{ .Values.inferenceService.storageUri | default "oci://quay.io/rh-aiservices-bu/llama-guard-3-1b-modelcar:0.0.1" }}
+    tolerations:
+      {{- toYaml .Values.tolerations | nindent 6 }}

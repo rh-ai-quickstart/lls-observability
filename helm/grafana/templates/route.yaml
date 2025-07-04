@@ -1,7 +1,10 @@
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
-  name: grafana-route
+  name: {{ include "grafana.fullname" . }}-route
+  namespace: {{ .Values.grafana.namespace }}
+  labels:
+    {{- include "grafana.labels" . | nindent 4 }}
 spec:
   to:
     kind: Service

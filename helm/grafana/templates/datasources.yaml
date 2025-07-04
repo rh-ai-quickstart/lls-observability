@@ -1,9 +1,12 @@
+{{- if .Values.datasources.prometheus.enabled }}
 ---
 apiVersion: grafana.integreatly.org/v1beta1
 kind: GrafanaDatasource
 metadata:
   name: prometheus
-  namespace: observability-hub
+  namespace: {{ .Values.grafana.namespace }}
+  labels:
+    {{- include "grafana.labels" . | nindent 4 }}
 spec:
   instanceSelector:
     matchLabels:
@@ -13,8 +16,8 @@ spec:
     type: prometheus
     access: proxy
     editable: true
-    url: "https://thanos-querier.openshift-monitoring.svc.cluster.local:9091"
-    isDefault: true
+    url: {{ .Values.datasources.prometheus.url | quote }}
+    isDefault: {{ .Values.datasources.prometheus.isDefault }}
     secureJsonData:
       httpHeaderValue1: "Bearer ${token}"
     jsonData:
@@ -25,14 +28,18 @@ spec:
     - targetPath: secureJsonData.httpHeaderValue1
       valueFrom:
         secretKeyRef:
-          name: grafana-sa-token
+          name: {{ .Values.serviceAccount.tokenSecretName }}
           key: token
+{{- end }}
+{{- if .Values.datasources.tempo.enabled }}
 ---
 apiVersion: grafana.integreatly.org/v1beta1
 kind: GrafanaDatasource
 metadata:
   name: tempo
-  namespace: observability-hub
+  namespace: {{ .Values.grafana.namespace }}
+  labels:
+    {{- include "grafana.labels" . | nindent 4 }}
 spec:
   instanceSelector:
     matchLabels:
@@ -42,8 +49,8 @@ spec:
     type: tempo
     access: proxy
     editable: true
-    url: "https://tempo-tempostack-gateway.observability-hub.svc.cluster.local:8081/api/traces/v1/dev/tempo"
-    isDefault: false
+    url: {{ .Values.datasources.tempo.url | quote }}
+    isDefault: {{ .Values.datasources.tempo.isDefault }}
     secureJsonData:
       httpHeaderValue1: "Bearer ${token}"
     jsonData:
@@ -54,5 +61,6 @@ spec:
     - targetPath: secureJsonData.httpHeaderValue1
       valueFrom:
         secretKeyRef:
-          name: grafana-sa-token
+          name: {{ .Values.serviceAccount.tokenSecretName }}
           key: token
+{{- end }}

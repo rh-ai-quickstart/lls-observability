@@ -1,0 +1,6 @@
+apiVersion: v2
+name: grafana
+description: A Helm chart for Grafana instance with Prometheus and Tempo datasources
+type: application
+version: 0.1.0
+appVersion: "latest"

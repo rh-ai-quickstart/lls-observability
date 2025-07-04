@@ -2,7 +2,9 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: cluster-monitoring-view-grafana
+  name: cluster-monitoring-view-{{ include "grafana.fullname" . }}
+  labels:
+    {{- include "grafana.labels" . | nindent 4 }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -10,13 +12,14 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: grafana-sa
-    # update if not using observability-hub namespace
-    namespace: observability-hub
+    namespace: {{ .Values.grafana.namespace }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: openshift-cluster-monitoring-view-grafana
+  name: openshift-cluster-monitoring-view-{{ include "grafana.fullname" . }}
+  labels:
+    {{- include "grafana.labels" . | nindent 4 }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -24,13 +27,14 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: grafana-sa
-    # update if not using observability-hub namespace
-    namespace: observability-hub
+    namespace: {{ .Values.grafana.namespace }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: tempostack-traces-reader-grafana
+  name: tempostack-traces-reader-{{ include "grafana.fullname" . }}
+  labels:
+    {{- include "grafana.labels" . | nindent 4 }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -38,15 +42,15 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: grafana-sa
-    # update if not using observability-hub namespace
-    namespace: observability-hub
+    namespace: {{ .Values.grafana.namespace }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: edit
-  # update if not using observability-hub namespace
-  namespace: observability-hub
+  name: edit-{{ include "grafana.fullname" . }}
+  namespace: {{ .Values.grafana.namespace }}
+  labels:
+    {{- include "grafana.labels" . | nindent 4 }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -54,5 +58,4 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: grafana-sa
-  # update if not using observability-hub namespace
-  namespace: observability-hub
+  namespace: {{ .Values.grafana.namespace }}

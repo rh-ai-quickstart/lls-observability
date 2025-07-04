@@ -1,0 +1,25 @@
+grafana:
+  adminUser: "rhel"
+  adminPassword: "rhel"
+  logLevel: "warn"
+  namespace: "observability-hub"
+
+datasources:
+  prometheus:
+    enabled: true
+    url: "https://thanos-querier.openshift-monitoring.svc.cluster.local:9091"
+    isDefault: true
+    
+  tempo:
+    enabled: true
+    url: "https://tempo-tempostack-gateway.observability-hub.svc.cluster.local:8081/api/traces/v1/dev/tempo"
+    isDefault: false
+
+dashboards:
+  clusterMetrics:
+    enabled: false
+  vllm:
+    enabled: false
+
+serviceAccount:
+  tokenSecretName: "grafana-sa-token"

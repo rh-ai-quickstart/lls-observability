@@ -1,0 +1,26 @@
+apiVersion: v2
+name: llama-guard
+description: A Helm chart for Llama Guard 3-1B model deployment on vLLM
+type: application
+version: 1.0.0
+appVersion: "3-1b"
+keywords:
+  - llama
+  - guard
+  - vllm
+  - ai
+  - ml
+  - inference
+  - safety
+home: https://github.com/company/llama-stack-mcp-server
+sources:
+  - https://github.com/company/llama-stack-mcp-server
+maintainers:
+  - name: AI Engineering Team
+    email: ai-engineering@company.com
+annotations:
+  category: AI Applications
+  openshift.io/display-name: "Llama Guard 3-1B Model"
+  openshift.io/provider-display-name: "AI Engineering Team"
+  openshift.io/documentation-url: "https://docs.company.com/llama-models"
+  openshift.io/support-url: "https://support.company.com"

@@ -1,11 +1,14 @@
+{{- if .Values.dashboards.vllm.enabled }}
 kind: GrafanaDashboard
 apiVersion: grafana.integreatly.org/v1beta1
 metadata:
-  name: vllm
+  name: vllm-{{ include "grafana.fullname" . }}
+  namespace: {{ .Values.grafana.namespace }}
   labels:
-    app: grafana
+    {{- include "grafana.labels" . | nindent 4 }}
 spec:
   instanceSelector:
     matchLabels:
-      dashboards: grafana   # This label matches the grafana instance
+      dashboards: grafana
   url: https://raw.githubusercontent.com/opendatahub-io/llama-stack-demos/refs/heads/main/kubernetes/observability/grafana/vllm-dashboard/vllm-grafana-openshift.json
+{{- end }}

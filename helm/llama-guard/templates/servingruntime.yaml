@@ -1,0 +1,83 @@
+{{- if .Values.servingRuntime.enabled }}
+apiVersion: serving.kserve.io/v1alpha1
+kind: ServingRuntime
+metadata:
+  name: llama-guard-3-1b
+  labels:
+    {{- include "llama-guard.labels" . | nindent 4 }}
+  annotations:
+    opendatahub.io/apiProtocol: REST
+    opendatahub.io/accelerator-name: migrated-gpu
+spec:
+  supportedModelFormats:
+  - name: vLLM
+    version: "1"
+    autoSelect: true
+  - name: huggingface
+    version: "1"
+    autoSelect: true
+  containers:
+  - name: kserve-container
+    image: {{ .Values.servingRuntime.image | default "quay.io/modh/vllm@sha256:4f550996130e7d16cacb24ca9a2865e7cf51eddaab014ceaf31a1ea6ef86d4ec" }}
+    args:
+    - --model=/mnt/models
+    - --port=8080
+    - --max-model-len={{ .Values.model.maxModelLen | default 8192 }}
+    - --gpu_memory_utilization={{ .Values.model.gpuMemoryUtilization | default 0.40 }}
+    - '--served-model-name={{ .Values.model.name | default "meta-llama/Llama-Guard-3-1B" }}'
+    - --distributed-executor-backend={{ .Values.servingRuntime.distributedExecutorBackend | default "mp" }}
+    - --dtype={{ .Values.model.dtype | default "half" }}
+    {{- if .Values.servingRuntime.tracing.enabled }}
+    # tracing-specific flags and options
+    - --otlp-traces-endpoint
+    - {{ .Values.servingRuntime.tracing.otlpTracesEndpoint }}
+    - --collect-detailed-traces
+    - {{ .Values.servingRuntime.tracing.collectDetailedTraces | quote }}
+    {{- end }}
+    env:
+    - name: HF_HOME
+      value: /tmp/hf_home
+    {{- if .Values.servingRuntime.tracing.enabled }}
+    - name: OTEL_SERVICE_NAME
+      value: {{ .Values.servingRuntime.tracing.serviceName | quote }}
+    - name: OTEL_EXPORTER_OTLP_TRACES_INSECURE
+      value: {{ .Values.servingRuntime.tracing.insecure | quote }}
+    {{- end }}
+    {{- range $key, $value := .Values.env }}
+    {{- if ne $key "HF_HOME" }}
+    - name: {{ $key }}
+      value: {{ $value | quote }}
+    {{- end }}
+    {{- end }}
+    ports:
+    - containerPort: 8080
+      name: h2c
+      protocol: TCP
+    resources:
+      {{- toYaml .Values.resources | nindent 6 }}
+    volumeMounts:
+    - name: shm
+      mountPath: /dev/shm
+  volumes:
+  - name: shm
+    emptyDir:
+      medium: Memory
+      sizeLimit: {{ .Values.servingRuntime.shmSizeLimit | default "2Gi" }}
+  {{- with .Values.nodeSelector }}
+  nodeSelector:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .Values.affinity }}
+  affinity:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .Values.tolerations }}
+  tolerations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  builtInAdapter:
+    serverType: vllm
+    runtimeManagementPort: 8080
+    memBufferBytes: {{ .Values.servingRuntime.memBufferBytes | default 134217728 }}
+    modelLoadingTimeoutMillis: {{ .Values.servingRuntime.modelLoadingTimeoutMillis | default 90000 }}
+{{- end }}

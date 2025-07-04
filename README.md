@@ -92,6 +92,7 @@ These traces provide insights into:
 ### Required Software
 
 - **OpenShift 4.12+** or **Kubernetes 1.24+**
+- **OpenShift AI 2.19 onwards**
 - **Helm 3.8+** for chart deployment
 - **oc CLI** or **kubectl** for cluster management
 
@@ -99,15 +100,7 @@ These traces provide insights into:
 
 Install these operators from OperatorHub before deploying the observability stack:
 
-```bash
-# Install operators using helm charts
-helm install cluster-observability-operator ./helm/cluster-observability-operator
-helm install grafana-operator ./helm/grafana-operator
-helm install otel-operator ./helm/otel-operator
-helm install tempo-operator ./helm/tempo-operator
-```
-
-Or install manually from OperatorHub:
+Install manually from OperatorHub:
 - Red Hat Build of OpenTelemetry Operator
 - Tempo Operator
 - Cluster Observability Operator
@@ -157,10 +150,10 @@ helm install llama3-2-3b ./helm/llama3.2-3b \
 helm install mcp-weather ./helm/mcp-weather
 
 helm install llama-stack ./helm/llama-stack \
-  --set inference.endpoints[0].url="http://llama3-2-3b:80/v1" \
-  --set mcpServers[0].name="weather" \
-  --set mcpServers[0].uri="http://mcp-weather:80" \
-  --set mcpServers[0].description="Weather MCP Server for real-time weather data"
+  --set 'inference.endpoints[0].url=http://llama3-2-3b:80/v1' \
+  --set 'mcpServers[0].name=weather' \
+  --set 'mcpServers[0].uri=http://mcp-weather:80' \
+  --set 'mcpServers[0].description=Weather MCP Server for real-time weather data'
 
 helm install llama-stack-playground ./helm/llama-stack-playground \
   --set playground.llamaStackUrl="http://llama-stack:80"
@@ -168,7 +161,6 @@ helm install llama-stack-playground ./helm/llama-stack-playground \
 # 7. Enable tracing UI
 helm install distributed-tracing-ui-plugin ./helm/distributed-tracing-ui-plugin
 ```
-
 
 ## Advanced Usage
 
