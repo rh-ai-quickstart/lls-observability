@@ -94,16 +94,6 @@ These traces provide insights into:
 - **Helm 3.8+** for chart deployment
 - **oc CLI** or **kubectl** for cluster management
 
-### Required Operators
-
-Install these operators from OperatorHub before deploying the observability stack:
-
-Install manually from OperatorHub:
-- Red Hat Build of OpenTelemetry Operator
-- Tempo Operator
-- Cluster Observability Operator
-- Grafana Operator
-
 ### Required Permissions
 
 - **Cluster Admin** - Required for operator installation and observability stack setup
@@ -158,42 +148,6 @@ helm install llama-stack-playground ./helm/llama-stack-playground \
 
 # 7. Enable tracing UI
 helm install distributed-tracing-ui-plugin ./helm/distributed-tracing-ui-plugin
-```
-
-## Advanced Usage
-
-### Individual Component Deployment
-
-#### Deploy Llama 3.2-3B on vLLM
-
-```bash
-helm install llama3-2-3b ./helm/llama3.2-3b \
-  --set model.name="meta-llama/Llama-3.2-3B-Instruct" \
-  --set resources.limits."nvidia\.com/gpu"=1 \
-  --set nodeSelector."nvidia\.com/gpu\.present"="true"
-```
-
-#### Deploy MCP Weather Server
-
-```bash
-helm install mcp-weather ./helm/mcp-weather 
-```
-
-#### Deploy Llama Stack
-
-```bash
-helm install llama-stack ./helm/llama-stack \
-  --set inference.endpoints[0].url="http://llama3-2-3b:80/v1" \
-  --set mcpServers[0].name="weather" \
-  --set mcpServers[0].uri="http://mcp-weather:80" \
-  --set mcpServers[0].description="Weather MCP Server for real-time weather data"
-```
-
-#### Deploy the Playground
-
-```bash
-helm install llama-stack-playground ./helm/llama-stack-playground \
-  --set playground.llamaStackUrl="http://llama-stack:80"
 ```
 
 ## References
