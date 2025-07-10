@@ -117,6 +117,7 @@ Install manually from OperatorHub:
 # 1. Create required namespaces
 oc create namespace observability-hub
 oc create namespace openshift-user-workload-monitoring
+oc create namespace my-ai-application
 
 # 2. Install required operators
 helm install cluster-observability-operator ./helm/cluster-observability-operator
@@ -141,19 +142,19 @@ oc get configmap user-workload-monitoring-config -n openshift-user-workload-moni
 oc get podmonitors -n observability-hub
 
 # 6. Deploy AI workloads
-helm install llama3-2-3b ./helm/llama3.2-3b \
+helm install llama3-2-3b ./helm/llama3.2-3b -n my-ai-application \
   --set model.name="meta-llama/Llama-3.2-3B-Instruct" \
   --set resources.limits."nvidia\.com/gpu"=1
 
-helm install mcp-weather ./helm/mcp-weather
+helm install mcp-weather ./helm/mcp-weather -n my-ai-application
 
-helm install llama-stack ./helm/llama-stack \
+helm install llama-stack ./helm/llama-stack -n my-ai-application \
   --set 'inference.endpoints[0].url=http://llama3-2-3b:80/v1' \
   --set 'mcpServers[0].name=weather' \
   --set 'mcpServers[0].uri=http://mcp-weather:80' \
   --set 'mcpServers[0].description=Weather MCP Server for real-time weather data'
 
-helm install llama-stack-playground ./helm/llama-stack-playground \
+helm install llama-stack-playground ./helm/llama-stack-playground -n my-ai-application \
   --set playground.llamaStackUrl="http://llama-stack:80"
 
 # 7. Enable tracing UI
