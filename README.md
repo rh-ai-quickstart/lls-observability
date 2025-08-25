@@ -1,6 +1,6 @@
 # Llama Stack Telemetry & Observability
 
-Observability & telemetry kickstart for both Llama-Stack and OpenShift AI.
+Observability & telemetry quickstart for both Llama-Stack and OpenShift AI.
 
 This repository provides helm charts for deploying AI services with telemetry and observability on Llama-Stack, OpenShift and OpenShift AI.
 
@@ -18,7 +18,7 @@ Jump straight to [installation](#installation) to get started quickly.
 
 ## Detailed description
 
-This telemetry and observability kickstart addresses the critical needs for Large Language Model (LLM) infrastructure. As AI workloads become more complex, organizations need:
+This telemetry and observability quickstart addresses the critical needs for Large Language Model (LLM) infrastructure. As AI workloads become more complex, organizations need:
 
 - **AI observability** into model performance, resource utilization, and distributed tracing
 - **Standardized deployment patterns** for consistent, scalable AI service delivery
@@ -211,5 +211,5 @@ helm install llama-stack-playground ./helm/llama-stack-playground \
 - [Tempo](https://grafana.com/oss/tempo/)
 
 ### Community
-- [Red Hat AI Kickstarts](https://github.com/rh-ai-kickstart)
+- [Red Hat AI Quickstarts](https://github.com/rh-ai-quickstart)
 - [OpenShift AI Documentation](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_cloud_service)
