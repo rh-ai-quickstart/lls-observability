@@ -199,7 +199,7 @@ helm install llama-stack-playground ./helm/llama-stack-playground \
 ## References
 
 ### Documentation
-- [OpenShift Distributed Tracing (Tempo)](https://docs.redhat.com/en/documentation/openshift_container_platform/4.18/html/distributed_tracing/distributed-tracing-platform-tempo)
+- [OpenShift Distributed Tracing](https://docs.redhat.com/en/documentation/openshift_container_platform/4.19/html/distributed_tracing/index)
 - [OpenShift Observability](https://docs.redhat.com/en/documentation/openshift_container_platform/4.18/html/monitoring)
 - [User Workload Monitoring](https://docs.redhat.com/en/documentation/openshift_container_platform/4.18/html/monitoring/enabling-monitoring-for-user-defined-projects)
 
