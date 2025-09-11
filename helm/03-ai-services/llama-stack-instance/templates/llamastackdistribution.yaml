@@ -21,6 +21,20 @@ spec:
           value: 'console, sqlite, otel_trace, otel_metric'
         - name: OTEL_EXPORTER_OTLP_ENDPOINT
           value: http://otel-collector-collector.observability-hub.svc.cluster.local:4318
+        - name: INFERENCE_MODEL
+          value: llama3-2-3b
+        - name: SAFETY_MODEL
+          value: meta-llama/Llama-Guard-3-1B
+        - name: VLLM_MAX_TOKENS
+          value: "60000"
+        - name: VLLM_URL
+          value: "http://llama3-2-3b-predictor:8080/v1"
+        - name: VLLM_API_TOKEN
+          value: "fake"
+        - name: VLLM_TLS_VERIFY
+          value: "false"
+        - name: VLLM_SAFETY_MAX_TOKENS
+          value: "20000"
         {{- range $key, $value := .Values.llamaStackDistribution.server.containerSpec.env.customVariables }}
         - name: {{ $key }}
           value: {{ $value | quote }}

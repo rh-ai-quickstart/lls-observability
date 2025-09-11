@@ -22,9 +22,8 @@ data:
     - telemetry
     models:
     - metadata: {}
-      model_id: llama3-2-3b
-      provider_id: vllm
-      provider_model_id: llama3-2-3b
+      model_id: {{ .Values.llamaStackDistribution.inferenceModel | default "llama3-2-3b" }}
+      provider_id: vllm-inference
       model_type: llm
     - metadata:
         embedding_dimension: 384
@@ -32,7 +31,7 @@ data:
       provider_id: sentence-transformers
       model_type: embedding
     - metadata: {}
-      model_id: meta-llama/Llama-Guard-3-1B
+      model_id: {{ .Values.llamaStackDistribution.safetyModel | default "meta-llama/Llama-Guard-3-1B" }}
       provider_id: vllm-safety
       model_type: llm
     providers:
@@ -54,22 +53,32 @@ data:
             type: sqlite
             db_path: ${env.SQLITE_STORE_DIR:=~/.llama/distributions/starter}/responses_store.db
       inference:
-      - provider_id: vllm
+      - provider_id: vllm-inference
         provider_type: remote::vllm
         config:
-          url: "http://llama3-2-3b-predictor:8080/v1"
-          tls_verify: false
-          api_token: ${env.VLLM_API_TOKEN:fake}
+          url: {{ .Values.llamaStackDistribution.vllmUrl | default "http://llama3-2-3b-predictor:8080/v1" | quote }}
+          max_tokens: {{ .Values.llamaStackDistribution.vllmMaxTokens | default 60000 }}
+          api_token: {{ .Values.llamaStackDistribution.vllmApiToken | default "fake" | quote }}
+          tls_verify: {{ .Values.llamaStackDistribution.vllmTlsVerify | default false }}
       - provider_id: vllm-safety
         provider_type: remote::vllm
         config:
-          url: "http://llama-guard-3-1b-predictor:8080/v1"
-          max_tokens: ${env.VLLM_SAFETY_MAX_TOKENS:=20000}
-          api_token: ${env.VLLM_API_TOKEN:fake}
-          tls_verify: ${env.VLLM_TLS_VERIFY:=false}
+          url: {{ .Values.llamaStackDistribution.safetyUrl | default "http://llama-guard-3-1b-predictor:8080/v1" | quote }}
+          max_tokens: {{ .Values.llamaStackDistribution.safetyMaxTokens | default 20000 }}
+          api_token: {{ .Values.llamaStackDistribution.vllmApiToken | default "fake" | quote }}
+          tls_verify: {{ .Values.llamaStackDistribution.safetyTlsVerify | default false }}
       - provider_id: sentence-transformers
         provider_type: inline::sentence-transformers
         config: {}
+      vector_io:
+      - provider_id: milvus
+        provider_type: inline::milvus
+        config:
+          db_path: ${env.MILVUS_DB_PATH:=~/.llama/distributions/remote-vllm/milvus_store.db}
+          kvstore:
+            type: sqlite
+            namespace: null
+            db_path: ${env.SQLITE_STORE_DIR:=~/.llama/distributions/remote-vllm}/milvus_registry.db
       datasetio:
       - provider_id: localfs
         provider_type: inline::localfs
@@ -77,7 +86,7 @@ data:
           kvstore:
             type: sqlite
             namespace: null
-            db_path: ${env.SQLITE_STORE_DIR:~/.llama/distributions/remote-vllm}/localfs_datasetio.db
+            db_path: ${env.SQLITE_STORE_DIR:=~/.llama/distributions/remote-vllm}/localfs_datasetio.db
       tool_runtime:
       - provider_id: brave-search
         provider_type: remote::brave-search
@@ -100,18 +109,18 @@ data:
       - provider_id: meta-reference
         provider_type: inline::meta-reference
         config:
-          service_name: ${env.OTEL_SERVICE_NAME:=llama-stack}
-          sinks: ${env.TELEMETRY_SINKS:=console, sqlite, otel_metric, otel_trace}
-          otel_exporter_otlp_endpoint: ${env.OTEL_EXPORTER_OTLP_ENDPOINT:=http://otel-collector-collector.observability-hub.svc.cluster.local:4318}
+          service_name: {{ .Values.llamaStackDistribution.otelServiceName | default "llama-stack" }}
+          sinks: {{ .Values.llamaStackDistribution.telemetrySinks | default "console, sqlite, otel_metric, otel_trace" }}
+          otel_exporter_otlp_endpoint: {{ .Values.llamaStackDistribution.otelEndpoint | default "http://otel-collector-collector.observability-hub.svc.cluster.local:4318" }}
           sqlite_db_path: ${env.SQLITE_DB_PATH:=~/.llama/distributions/remote-vllm/trace_store.db}
     metadata_store:
       type: sqlite
-      db_path: ${env.SQLITE_STORE_DIR:~/.llama/distributions/remote-vllm}/registry.db
+      db_path: ${env.SQLITE_STORE_DIR:=~/.llama/distributions/remote-vllm}/registry.db
     inference_store:
       type: sqlite
-      db_path: ${env.SQLITE_STORE_DIR:~/.llama/distributions/remote-vllm}/inference_store.db
+      db_path: ${env.SQLITE_STORE_DIR:=~/.llama/distributions/remote-vllm}/inference_store.db
     shields:
-    - shield_id: meta-llama/Llama-Guard-3-1B
+    - shield_id: {{ .Values.llamaStackDistribution.safetyModel | default "meta-llama/Llama-Guard-3-1B" }}
     vector_dbs: []
     datasets: []
     scoring_fns: []
