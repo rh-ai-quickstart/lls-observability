@@ -3,7 +3,7 @@ replicaCount: 1
 
 image:
   repository: quay.io/rh-aiservices-bu/llama-stack-playground
-  tag: "0.2.1"
+  tag: "0.2.11"
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []

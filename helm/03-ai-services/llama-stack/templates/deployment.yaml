@@ -59,9 +59,9 @@ spec:
               protocol: TCP
           env:
             - name: MAX_TOKENS
-              value: "128000"
+              value: "60000"
             - name: VLLM_MAX_TOKENS
-              value: "128000"
+              value: "60000"
             - name: VLLM_URL
               value: "{{ .Values.llamaStack.vllmUrl }}"
             - name: INFERENCE_MODEL

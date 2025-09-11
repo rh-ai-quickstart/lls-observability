@@ -1,0 +1,61 @@
+{{- if .Values.rbac.create }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "llama-stack-operator.leaderElectionRoleName" . }}
+  namespace: {{ include "llama-stack-operator.namespace" . }}
+  labels:
+    {{- include "llama-stack-operator.labels" . | nindent 4 }}
+  annotations:
+    {{- include "llama-stack-operator.annotations" . | nindent 4 }}
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - coordination.k8s.io
+  resources:
+  - leases
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "llama-stack-operator.leaderElectionRoleBindingName" . }}
+  namespace: {{ include "llama-stack-operator.namespace" . }}
+  labels:
+    {{- include "llama-stack-operator.labels" . | nindent 4 }}
+  annotations:
+    {{- include "llama-stack-operator.annotations" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ include "llama-stack-operator.leaderElectionRoleName" . }}
+subjects:
+- kind: ServiceAccount
+  name: {{ include "llama-stack-operator.serviceAccountName" . }}
+  namespace: {{ include "llama-stack-operator.namespace" . }}
+{{- end }}

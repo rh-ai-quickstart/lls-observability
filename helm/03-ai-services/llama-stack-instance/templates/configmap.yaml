@@ -1,0 +1,130 @@
+{{- if .Values.configMap.enabled -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: llama-stack-config
+  labels:
+    {{- include "llama-stack-instance.labels" . | nindent 4 }}
+data:
+  run.yaml: |-
+    # Llama Stack Configuration
+    version: '2'
+    image_name: remote-vllm
+    apis:
+    - agents
+    - datasetio
+    - eval
+    - inference
+    - safety
+    - scoring
+    - tool_runtime
+    - vector_io
+    - telemetry
+    models:
+    - metadata: {}
+      model_id: llama3-2-3b
+      provider_id: vllm
+      provider_model_id: llama3-2-3b
+      model_type: llm
+    - metadata:
+        embedding_dimension: 384
+      model_id: all-MiniLM-L6-v2
+      provider_id: sentence-transformers
+      model_type: embedding
+    - metadata: {}
+      model_id: meta-llama/Llama-Guard-3-1B
+      provider_id: vllm-safety
+      model_type: llm
+    providers:
+      scoring:
+      - provider_id: basic
+        provider_type: inline::basic
+        config: {}
+      - provider_id: llm-as-judge
+        provider_type: inline::llm-as-judge
+        config: {}
+      agents:
+      - provider_id: meta-reference
+        provider_type: inline::meta-reference
+        config:
+          persistence_store:
+            type: sqlite
+            db_path: ${env.SQLITE_STORE_DIR:=~/.llama/distributions/starter}/agents_store.db
+          responses_store:
+            type: sqlite
+            db_path: ${env.SQLITE_STORE_DIR:=~/.llama/distributions/starter}/responses_store.db
+      inference:
+      - provider_id: vllm
+        provider_type: remote::vllm
+        config:
+          url: "http://llama3-2-3b-predictor:8080/v1"
+          tls_verify: false
+          api_token: ${env.VLLM_API_TOKEN:fake}
+      - provider_id: vllm-safety
+        provider_type: remote::vllm
+        config:
+          url: "http://llama-guard-3-1b-predictor:8080/v1"
+          max_tokens: ${env.VLLM_SAFETY_MAX_TOKENS:=20000}
+          api_token: ${env.VLLM_API_TOKEN:fake}
+          tls_verify: ${env.VLLM_TLS_VERIFY:=false}
+      - provider_id: sentence-transformers
+        provider_type: inline::sentence-transformers
+        config: {}
+      datasetio:
+      - provider_id: localfs
+        provider_type: inline::localfs
+        config:
+          kvstore:
+            type: sqlite
+            namespace: null
+            db_path: ${env.SQLITE_STORE_DIR:~/.llama/distributions/remote-vllm}/localfs_datasetio.db
+      tool_runtime:
+      - provider_id: brave-search
+        provider_type: remote::brave-search
+        config:
+          api_key: ${env.BRAVE_SEARCH_API_KEY:}
+          max_results: 3
+      - provider_id: tavily-search
+        provider_type: remote::tavily-search
+        config:
+          api_key: ${env.TAVILY_SEARCH_API_KEY:}
+          max_results: 3
+      - provider_id: model-context-protocol
+        provider_type: remote::model-context-protocol
+        config: {}
+      - provider_id: wolfram-alpha
+        provider_type: remote::wolfram-alpha
+        config:
+          api_key: ${env.WOLFRAM_ALPHA_API_KEY:}
+      telemetry:
+      - provider_id: meta-reference
+        provider_type: inline::meta-reference
+        config:
+          service_name: ${env.OTEL_SERVICE_NAME:=llama-stack}
+          sinks: ${env.TELEMETRY_SINKS:=console, sqlite, otel_metric, otel_trace}
+          otel_exporter_otlp_endpoint: ${env.OTEL_EXPORTER_OTLP_ENDPOINT:=http://otel-collector-collector.observability-hub.svc.cluster.local:4318}
+          sqlite_db_path: ${env.SQLITE_DB_PATH:=~/.llama/distributions/remote-vllm/trace_store.db}
+    metadata_store:
+      type: sqlite
+      db_path: ${env.SQLITE_STORE_DIR:~/.llama/distributions/remote-vllm}/registry.db
+    inference_store:
+      type: sqlite
+      db_path: ${env.SQLITE_STORE_DIR:~/.llama/distributions/remote-vllm}/inference_store.db
+    shields:
+    - shield_id: meta-llama/Llama-Guard-3-1B
+    vector_dbs: []
+    datasets: []
+    scoring_fns: []
+    benchmarks: []
+    tool_groups:
+    - toolgroup_id: builtin::websearch
+      provider_id: tavily-search
+    {{- range .Values.mcpServers }}
+    - toolgroup_id: mcp::{{ .name }}
+      provider_id: model-context-protocol
+      mcp_endpoint:
+        uri: {{ .uri }}{{ if eq .name "weather" }}/sse{{ end }}
+    {{- end }}
+    server:
+      port: 8321
+{{- end }}

@@ -28,6 +28,13 @@ data:
           max_tokens: ${env.VLLM_MAX_TOKENS:4096}
           api_token: ${env.VLLM_API_TOKEN:fake}
           tls_verify: ${env.VLLM_TLS_VERIFY:true}
+      - provider_id: vllm-safety
+        provider_type: remote::vllm
+        config:
+          url: ${env.SAFETY_MODEL:http://llama-guard-3-1b-predictor:8080/v1}
+          max_tokens: ${env.VLLM_SAFETY_MAX_TOKENS:20000}
+          api_token: ${env.VLLM_API_TOKEN:fake}
+          tls_verify: ${env.VLLM_TLS_VERIFY:false}
       - provider_id: sentence-transformers
         provider_type: inline::sentence-transformers
         config: {}
@@ -131,7 +138,12 @@ data:
       model_id: all-MiniLM-L6-v2
       provider_id: sentence-transformers
       model_type: embedding
-    shields: []
+    - metadata: {}
+      model_id: ${env.SAFETY_MODEL:meta-llama/Llama-Guard-3-1B}
+      provider_id: vllm-safety
+      model_type: llm
+    shields:
+    - shield_id: ${env.SAFETY_MODEL:meta-llama/Llama-Guard-3-1B}
     vector_dbs: []
     datasets: []
     scoring_fns: []

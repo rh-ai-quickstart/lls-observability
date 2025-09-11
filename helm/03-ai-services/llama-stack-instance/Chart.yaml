@@ -1,0 +1,27 @@
+apiVersion: v2
+name: llama-stack-instance
+description: A Helm chart for creating LlamaStackDistribution instances managed by the Llama Stack Operator
+type: application
+version: 1.0.0
+appVersion: "v0.3.0"
+keywords:
+  - llama
+  - stack
+  - instance
+  - operator
+  - ai
+  - inference
+  - custom-resource
+home: https://github.com/meta-llama/llama-stack
+sources:
+  - https://github.com/meta-llama/llama-stack
+  - https://github.com/meta-llama/llama-stack-apps
+maintainers:
+  - name: AI Engineering Team
+    email: ai-engineering@company.com
+annotations:
+  category: AI/ML
+  openshift.io/display-name: "Llama Stack Instance"
+  openshift.io/provider-display-name: "AI Engineering Team"
+  openshift.io/documentation-url: "https://docs.company.com/llama-stack-instance"
+  openshift.io/support-url: "https://support.company.com"

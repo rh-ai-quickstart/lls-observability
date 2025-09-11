@@ -34,10 +34,10 @@ model:
   name: "meta-llama/Llama-3.2-3B-Instruct"
   # Alternative models:
   # name: "meta-llama/Llama-3.2-3B"
-  maxModelLen: 8192
-  gpuMemoryUtilization: 0.40
-  quantization: ""  # Options: awq, gptq, squeezellm, fp8
-  dtype: "auto"     # Options: auto, half, float16, bfloat16, float32
+  maxModelLen: 65000
+  # gpuMemoryUtilization: 0.40
+  # quantization: ""  # Options: awq, gptq, squeezellm, fp8
+  # dtype: "auto"     # Options: auto, half, float16, bfloat16, float32
   
 # vLLM server configuration
 vllm:

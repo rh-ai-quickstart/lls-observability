@@ -1,0 +1,105 @@
+# Llama Stack Operator configuration
+
+# Namespace configuration
+namespace:
+  name: llama-stack-k8s-operator-system
+  create: true
+  annotations: {}
+  labels:
+    app.kubernetes.io/name: llama-stack-k8s-operator
+
+# Image configuration
+image:
+  repository: quay.io/eformat/llama-stack-k8s-operator
+  tag: v0.3.0
+  pullPolicy: IfNotPresent
+
+# Environment variables
+env:
+  operatorVersion: latest
+  llamaStackVersion: latest
+
+# Service Account configuration
+serviceAccount:
+  create: true
+  name: ""
+  annotations: {}
+
+# RBAC configuration
+rbac:
+  create: true
+
+# Deployment configuration
+replicaCount: 1
+nameOverride: ""
+fullnameOverride: ""
+
+# Pod annotations
+podAnnotations:
+  kubectl.kubernetes.io/default-container: manager
+
+# Pod security context
+podSecurityContext:
+  runAsNonRoot: true
+
+# Container security context
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+    - ALL
+
+# Resource limits and requests
+resources:
+  requests:
+    cpu: 10m
+    memory: 64Mi
+
+# Liveness probe configuration
+livenessProbe:
+  httpGet:
+    path: /healthz
+    port: 8081
+  initialDelaySeconds: 15
+  periodSeconds: 20
+
+# Readiness probe configuration
+readinessProbe:
+  httpGet:
+    path: /readyz
+    port: 8081
+  initialDelaySeconds: 5
+  periodSeconds: 10
+
+# Service configuration
+service:
+  type: ClusterIP
+  port: 8443
+  targetPort: https
+  name: metrics-service
+
+# Node selector
+nodeSelector: {}
+
+# Tolerations
+tolerations: []
+
+# Affinity
+affinity: {}
+
+# Termination grace period
+terminationGracePeriodSeconds: 10
+
+# Leader election configuration
+leaderElection:
+  enabled: true
+
+# Global labels to apply to all resources
+commonLabels: {}
+
+# Global annotations to apply to all resources
+commonAnnotations: {}
+
+# CRD configuration
+crd:
+  create: true

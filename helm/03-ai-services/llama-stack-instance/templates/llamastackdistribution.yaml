@@ -1,0 +1,41 @@
+{{- if .Values.llamaStackDistribution.create }}
+apiVersion: llamastack.io/v1alpha1
+kind: LlamaStackDistribution
+metadata:
+  name: {{ include "llama-stack-instance.distributionName" . }}
+  namespace: {{ include "llama-stack-instance.namespace" . }}
+  labels:
+    {{- include "llama-stack-instance.instanceLabels" . | nindent 4 }}
+  {{- with .Values.instanceAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  replicas: {{ .Values.llamaStackDistribution.replicas }}
+  server:
+    containerSpec:
+      env:
+        - name: OTEL_SERVICE_NAME
+          value: {{ .Values.llamaStackDistribution.server.containerSpec.env.otelServiceName }}
+        - name: TELEMETRY_SINKS
+          value: 'console, sqlite, otel_trace, otel_metric'
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: http://otel-collector-collector.observability-hub.svc.cluster.local:4318
+        {{- range $key, $value := .Values.llamaStackDistribution.server.containerSpec.env.customVariables }}
+        - name: {{ $key }}
+          value: {{ $value | quote }}
+        {{- end }}
+      name: {{ .Values.llamaStackDistribution.server.containerSpec.name }}
+      port: {{ .Values.llamaStackDistribution.server.containerSpec.port }}
+      {{- if .Values.llamaStackDistribution.server.containerSpec.resources }}
+      resources:
+        {{- toYaml .Values.llamaStackDistribution.server.containerSpec.resources | nindent 8 }}
+      {{- end }}
+    distribution:
+      name: {{ .Values.llamaStackDistribution.server.distribution.name }}
+      {{- if .Values.llamaStackDistribution.server.distribution.image }}
+      image: {{ .Values.llamaStackDistribution.server.distribution.image }}
+      {{- end }}
+    userConfig:
+      configMapName: llama-stack-config
+{{- end }}

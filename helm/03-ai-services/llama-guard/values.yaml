@@ -30,10 +30,10 @@ securityContext:
 # Model configuration
 model:
   name: "meta-llama/Llama-Guard-3-1B"
-  maxModelLen: 8192
-  gpuMemoryUtilization: 0.40
-  quantization: ""  # Options: awq, gptq, squeezellm, fp8
-  dtype: "half"     # Options: auto, half, float16, bfloat16, float32
+  maxModelLen: 24000
+  # gpuMemoryUtilization: 0.40
+  # quantization: ""  # Options: awq, gptq, squeezellm, fp8
+  # dtype: "half"     # Options: auto, half, float16, bfloat16, float32
   
 # vLLM server configuration
 vllm:
