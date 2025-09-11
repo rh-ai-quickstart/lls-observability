@@ -24,6 +24,6 @@ spec:
       resources:
         {{- toYaml .Values.resources | nindent 8 }}
       runtime: llama-guard-3-1b
-      storageUri: {{ .Values.inferenceService.storageUri | default "oci://quay.io/rh-aiservices-bu/llama-guard-3-1b-modelcar:0.0.1" }}
+      storageUri: {{ .Values.inferenceService.storageUri | default "oci://quay.io/rh-aiservices-bu/llama-guard-3-1b-modelcar:2.0.0" }}
     tolerations:
       {{- toYaml .Values.tolerations | nindent 6 }}

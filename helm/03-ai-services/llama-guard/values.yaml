@@ -91,7 +91,7 @@ resources:
   requests:
     nvidia.com/gpu: 1
     memory: 8Gi
-    cpu: 4
+    cpu: 1
 
 livenessProbe:
   httpGet:
@@ -155,7 +155,7 @@ inferenceService:
   modelFormat: "vLLM"
   modelName: ""
   runtime: ""  # Will default to chart fullname if not specified
-  storageUri: "oci://quay.io/rh-aiservices-bu/llama-guard-3-1b-modelcar:0.0.1"
+  storageUri: "oci://quay.io/rh-aiservices-bu/llama-guard-3-1b-modelcar:2.0.0"
 
 # Serving Runtime configuration
 servingRuntime:

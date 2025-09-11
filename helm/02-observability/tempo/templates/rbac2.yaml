@@ -36,7 +36,7 @@ subjects:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: tempostack-traces-reader-grafana
+  name: otel-collector-tempostack-traces-reader
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole

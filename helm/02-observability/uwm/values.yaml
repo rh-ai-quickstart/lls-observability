@@ -6,6 +6,36 @@ global:
   # Target namespace for monitoring (defaults to release namespace)
   targetNamespace: ""
 
+# Cluster Monitoring Configuration
+# This ConfigMap enables user workload monitoring at the cluster level
+clusterMonitoring:
+  # Enable/disable the cluster monitoring ConfigMap
+  enabled: true
+  
+  # ConfigMap name
+  configMapName: cluster-monitoring-config
+  
+  # Target namespace for the ConfigMap (must be openshift-monitoring)
+  namespace: openshift-monitoring
+  
+  # Enable user workload monitoring
+  enableUserWorkload: true
+  
+  # Prometheus K8s configuration (optional)
+  prometheusK8s: {}
+    # retention: 15d
+    # logLevel: info
+  
+  # Alertmanager Main configuration (optional)
+  alertmanagerMain: {}
+    # enabled: true
+  
+  # Additional labels for the ConfigMap
+  labels: {}
+  
+  # Additional annotations for the ConfigMap
+  annotations: {}
+
 # User Workload Monitoring ConfigMap Configuration
 # This ConfigMap enables user workload monitoring in OpenShift
 userWorkloadMonitoring:

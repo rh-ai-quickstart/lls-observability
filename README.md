@@ -35,29 +35,30 @@ The proposed observability & telemetry architecture:
 
 ### Components
 
-All components are available as helm charts in the [`./helm/`](./helm/) directory:
+All components are organized by dependency layers in the [`./helm/`](./helm/) directory:
 
-#### Operators
-- **[`cluster-observability-operator`](./helm/cluster-observability-operator/)** - PodMonitor/ServiceMonitor CRDs and UI plugins
-- **[`grafana-operator`](./helm/grafana-operator/)** - Grafana operator for visualization and dashboard management
-- **[`otel-operator`](./helm/otel-operator/)** - Red Hat Build of OpenTelemetry operator
-- **[`tempo-operator`](./helm/tempo-operator/)** - Distributed tracing backend operator
+#### Phase 1: Operators (`./helm/01-operators/`)
+- **[`cluster-observability-operator`](./helm/01-operators/cluster-observability-operator/)** - PodMonitor/ServiceMonitor CRDs and UI plugins
+- **[`grafana-operator`](./helm/01-operators/grafana-operator/)** - Grafana operator for visualization and dashboard management
+- **[`otel-operator`](./helm/01-operators/otel-operator/)** - Red Hat Build of OpenTelemetry operator
+- **[`tempo-operator`](./helm/01-operators/tempo-operator/)** - Distributed tracing backend operator
 
-#### Observability Components
-- **[`otel-collector`](./helm/otel-collector/)** - OpenTelemetry collector configurations for telemetry collection and processing
-- **[`tempo`](./helm/tempo/)** - Distributed tracing backend with S3-compatible storage
-- **[`grafana`](./helm/grafana/)** - Visualization and dashboard management with pre-built dashboards
-- **[`uwm`](./helm/uwm/)** - User Workload Monitoring with PodMonitors for VLLM and AI workloads
-- **[`distributed-tracing-ui-plugin`](./helm/distributed-tracing-ui-plugin/)** - OpenShift console integration for tracing
+#### Phase 2: Observability Infrastructure (`./helm/02-observability/`)
+- **[`tempo`](./helm/02-observability/tempo/)** - Distributed tracing backend with S3-compatible storage
+- **[`otel-collector`](./helm/02-observability/otel-collector/)** - OpenTelemetry collector configurations for telemetry collection and processing
+- **[`grafana`](./helm/02-observability/grafana/)** - Visualization and dashboard management with pre-built dashboards
+- **[`uwm`](./helm/02-observability/uwm/)** - User Workload Monitoring with PodMonitors for VLLM and AI workloads
+- **[`distributed-tracing-ui-plugin`](./helm/02-observability/distributed-tracing-ui-plugin/)** - OpenShift console integration for tracing
 
-#### AI Services
-- **[`llama-stack`](./helm/llama-stack/)** - Complete Llama Stack deployment with configurable endpoints
-- **[`llama3.2-3b`](./helm/llama3.2-3b/)** - Optimized Llama 3.2 3B model deployment on vLLM
-- **[`llama-stack-playground`](./helm/llama-stack-playground/)** - Interactive Llama-Stack web interface for testing
+#### Phase 3: AI Services (`./helm/03-ai-services/`)
+- **[`llama-stack`](./helm/03-ai-services/llama-stack/)** - Complete Llama Stack deployment with configurable endpoints
+- **[`llama3.2-3b`](./helm/03-ai-services/llama3.2-3b/)** - Optimized Llama 3.2 3B model deployment on vLLM
+- **[`llama-stack-playground`](./helm/03-ai-services/llama-stack-playground/)** - Interactive Llama-Stack web interface for testing
+- **[`llama-guard`](./helm/03-ai-services/llama-guard/)** - Content moderation service
 
-#### MCP Servers
-- **[`mcp-weather`](./helm/mcp-weather/)** - MCP weather service
-- **[`hr-api`](./helm/hr-api/)** - MCP HR API demonstration service
+#### Phase 4: MCP Servers (`./helm/04-mcp-servers/`)
+- **[`mcp-weather`](./helm/04-mcp-servers/mcp-weather/)** - MCP weather service
+- **[`hr-api`](./helm/04-mcp-servers/hr-api/)** - MCP HR API demonstration service
 
 ### Observability in Action
 
@@ -111,89 +112,158 @@ Install manually from OperatorHub:
 
 ## Installation
 
-### Quick Start - Complete Stack
+### Quick Start - Automated Installation
+
+**Option 1: Complete Stack (Recommended)**
+```bash
+# Run the full installation script
+./scripts/install-full-stack.sh
+```
+
+**Option 2: Phase-by-Phase Installation**
+```bash
+# Phase 1: Install operators
+./scripts/install-operators.sh
+
+# Phase 2: Deploy observability infrastructure
+./scripts/deploy-observability.sh
+
+# Phase 3: Deploy AI workloads
+./scripts/deploy-ai-workloads.sh
+```
+
+**Option 3: Using Makefile (Optional)**
+```bash
+# Install everything in one command
+make install-all
+
+# Or phase-by-phase
+make install-operators      # Phase 1
+make deploy-observability   # Phase 2  
+make deploy-ai              # Phase 3
+```
+
+## Advanced Usage
+
+### Manual Step-by-Step Installation
+
+For users who prefer to understand each step or need to customize the installation:
 
 ```bash
 # 1. Create required namespaces
 oc create namespace observability-hub
 oc create namespace openshift-user-workload-monitoring
+oc create namespace llama-serve
 
 # 2. Install required operators
-helm install cluster-observability-operator ./helm/cluster-observability-operator
-helm install grafana-operator ./helm/grafana-operator
-helm install otel-operator ./helm/otel-operator
-helm install tempo-operator ./helm/tempo-operator
+helm install cluster-observability-operator ./helm/01-operators/cluster-observability-operator
+helm install grafana-operator ./helm/01-operators/grafana-operator
+helm install otel-operator ./helm/01-operators/otel-operator
+helm install tempo-operator ./helm/01-operators/tempo-operator
 
 # 3. Wait for operators to be ready
 oc wait --for=condition=Ready pod -l app.kubernetes.io/name=cluster-observability-operator -n openshift-cluster-observability-operator --timeout=300s
 oc wait --for=condition=Ready pod -l app.kubernetes.io/name=observability-operator -n openshift-cluster-observability-operator --timeout=300s
 
 # 4. Deploy observability infrastructure
-helm install tempo ./helm/tempo -n observability-hub
-helm install otel-collector ./helm/otel-collector -n observability-hub
-helm install grafana ./helm/grafana -n observability-hub
+helm install tempo ./helm/02-observability/tempo -n observability-hub
+helm install otel-collector ./helm/02-observability/otel-collector -n observability-hub
+helm install grafana ./helm/02-observability/grafana -n observability-hub
 
 # 5. Enable User Workload Monitoring for AI workloads
-helm template uwm ./helm/uwm -n observability-hub | oc apply -f-
+helm template uwm ./helm/02-observability/uwm -n observability-hub | oc apply -f-
 
 # Verify UWM setup
 oc get configmap user-workload-monitoring-config -n openshift-user-workload-monitoring
 oc get podmonitors -n observability-hub
 
 # 6. Deploy AI workloads
-helm install llama3-2-3b ./helm/llama3.2-3b \
+# Deploy MCP servers in llama-serve namespace
+helm install mcp-weather ./helm/04-mcp-servers/mcp-weather -n llama-serve
+helm install hr-api ./helm/04-mcp-servers/hr-api -n llama-serve
+
+# Deploy AI services in llama-serve namespace  
+helm install llama3-2-3b ./helm/03-ai-services/llama3.2-3b -n llama-serve \
   --set model.name="meta-llama/Llama-3.2-3B-Instruct" \
   --set resources.limits."nvidia\.com/gpu"=1
 
-helm install mcp-weather ./helm/mcp-weather
-
-helm install llama-stack ./helm/llama-stack \
-  --set 'inference.endpoints[0].url=http://llama3-2-3b:80/v1' \
+helm install llama-stack ./helm/03-ai-services/llama-stack -n llama-serve \
+  --set 'inference.endpoints[0].url=http://llama3-2-3b.llama-serve.svc.cluster.local:80/v1' \
   --set 'mcpServers[0].name=weather' \
-  --set 'mcpServers[0].uri=http://mcp-weather:80' \
+  --set 'mcpServers[0].uri=http://mcp-weather.llama-serve.svc.cluster.local:80' \
   --set 'mcpServers[0].description=Weather MCP Server for real-time weather data'
 
-helm install llama-stack-playground ./helm/llama-stack-playground \
-  --set playground.llamaStackUrl="http://llama-stack:80"
+helm install llama-stack-playground ./helm/03-ai-services/llama-stack-playground -n llama-serve \
+  --set playground.llamaStackUrl="http://llama-stack.llama-serve.svc.cluster.local:80"
+
+helm install llama-guard ./helm/03-ai-services/llama-guard -n llama-serve
 
 # 7. Enable tracing UI
-helm install distributed-tracing-ui-plugin ./helm/distributed-tracing-ui-plugin
+helm install distributed-tracing-ui-plugin ./helm/02-observability/distributed-tracing-ui-plugin
 ```
-
-## Advanced Usage
 
 ### Individual Component Deployment
 
 #### Deploy Llama 3.2-3B on vLLM
 
 ```bash
-helm install llama3-2-3b ./helm/llama3.2-3b \
+helm install llama3-2-3b ./helm/03-ai-services/llama3.2-3b -n llama-serve \
   --set model.name="meta-llama/Llama-3.2-3B-Instruct" \
   --set resources.limits."nvidia\.com/gpu"=1 \
   --set nodeSelector."nvidia\.com/gpu\.present"="true"
 ```
 
-#### Deploy MCP Weather Server
+#### Deploy MCP Servers
 
 ```bash
-helm install mcp-weather ./helm/mcp-weather 
+helm install mcp-weather ./helm/04-mcp-servers/mcp-weather -n llama-serve
+helm install hr-api ./helm/04-mcp-servers/hr-api -n llama-serve
 ```
 
 #### Deploy Llama Stack
 
 ```bash
-helm install llama-stack ./helm/llama-stack \
-  --set inference.endpoints[0].url="http://llama3-2-3b:80/v1" \
-  --set mcpServers[0].name="weather" \
-  --set mcpServers[0].uri="http://mcp-weather:80" \
-  --set mcpServers[0].description="Weather MCP Server for real-time weather data"
+helm install llama-stack ./helm/03-ai-services/llama-stack -n llama-serve \
+  --set 'inference.endpoints[0].url=http://llama3-2-3b.llama-serve.svc.cluster.local:80/v1' \
+  --set 'mcpServers[0].name=weather' \
+  --set 'mcpServers[0].uri=http://mcp-weather.llama-serve.svc.cluster.local:80' \
+  --set 'mcpServers[0].description=Weather MCP Server for real-time weather data'
 ```
 
 #### Deploy the Playground
 
 ```bash
-helm install llama-stack-playground ./helm/llama-stack-playground \
-  --set playground.llamaStackUrl="http://llama-stack:80"
+helm install llama-stack-playground ./helm/03-ai-services/llama-stack-playground -n llama-serve \
+  --set playground.llamaStackUrl="http://llama-stack.llama-serve.svc.cluster.local:80"
+```
+
+#### Deploy Llama Guard
+
+```bash
+helm install llama-guard ./helm/03-ai-services/llama-guard -n llama-serve
+```
+
+### Development and Testing
+
+#### Validate Configurations
+
+```bash
+# Validate all configurations
+make validate
+
+# Validate specific charts
+make lint-chart CHART=tempo
+make template-chart CHART=llama-stack
+```
+
+#### Individual Chart Management
+
+```bash
+# Install specific chart
+make install-chart CHART=grafana NAMESPACE=observability-hub
+
+# Uninstall specific chart  
+make uninstall-chart CHART=grafana NAMESPACE=observability-hub
 ```
 
 ## References
