@@ -128,6 +128,14 @@ mcpServers:
     uri: "http://hr-api.llama-serve.svc.cluster.local:80"
 # To disable MCP servers, set mcpServers: []
 
+# RAG and Vector Database configuration
+rag:
+  # Enable external Milvus for vector storage (if false, uses inline Milvus)
+  enabled: true
+  milvus:
+    # Milvus service name (should match the Milvus Helm release name)
+    service: "milvus"
+
 # OpenTelemetry Collector configuration
 otelCollector:
   enabled: true

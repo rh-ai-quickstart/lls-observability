@@ -192,6 +192,12 @@ oc get podmonitors -n ${OBSERVABILITY_NAMESPACE}
 helm install mcp-weather ./helm/04-mcp-servers/mcp-weather -n ${AI_SERVICES_NAMESPACE}
 helm install hr-api ./helm/04-mcp-servers/hr-api -n ${AI_SERVICES_NAMESPACE}
 
+# Deploy Milvus vector database
+helm repo add milvus https://zilliztech.github.io/milvus-helm/
+helm repo update
+helm dependency build ./helm/03-ai-services/milvus
+helm install milvus ./helm/03-ai-services/milvus -n ${AI_SERVICES_NAMESPACE}
+
 # Deploy AI services in AI services namespace  
 helm install llama3-2-3b ./helm/03-ai-services/llama3.2-3b -n ${AI_SERVICES_NAMESPACE} \
   --set model.name="meta-llama/Llama-3.2-3B-Instruct" \
@@ -233,6 +239,15 @@ helm install llama-guard ./helm/03-ai-services/llama-guard -n ${AI_SERVICES_NAME
 ```bash
 helm install mcp-weather ./helm/04-mcp-servers/mcp-weather -n ${AI_SERVICES_NAMESPACE}
 helm install hr-api ./helm/04-mcp-servers/hr-api -n ${AI_SERVICES_NAMESPACE}
+```
+
+#### Deploy Milvus Vector Database
+
+```bash
+helm repo add milvus https://zilliztech.github.io/milvus-helm/
+helm repo update
+helm dependency build ./helm/03-ai-services/milvus
+helm install milvus ./helm/03-ai-services/milvus -n ${AI_SERVICES_NAMESPACE}
 ```
 
 #### Deploy Llama Stack

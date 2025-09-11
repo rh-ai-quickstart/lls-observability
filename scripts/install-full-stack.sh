@@ -221,6 +221,21 @@ deploy_uwm() {
 install_ai_workloads() {
     print_status "Installing AI workloads with specific configurations..."
     
+    # Install Milvus vector database
+    if ! release_exists "milvus" "$AI_SERVICES_NAMESPACE"; then
+        print_status "Adding Milvus Helm repository..."
+        helm repo add milvus https://zilliztech.github.io/milvus-helm/ --force-update
+        helm repo update
+        
+        print_status "Building Milvus chart dependencies..."
+        helm dependency build "$HELM_DIR/03-ai-services/milvus"
+        
+        print_status "Installing Milvus vector database in $AI_SERVICES_NAMESPACE..."
+        helm install milvus "$HELM_DIR/03-ai-services/milvus" -n "$AI_SERVICES_NAMESPACE"
+    else
+        print_warning "Milvus already installed, skipping..."
+    fi
+    
     # Install llama3.2-3b with GPU configuration
     if ! release_exists "llama3-2-3b" "$AI_SERVICES_NAMESPACE"; then
         print_status "Installing llama3.2-3b with GPU support in $AI_SERVICES_NAMESPACE..."

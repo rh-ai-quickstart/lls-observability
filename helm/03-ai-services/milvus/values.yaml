@@ -1,0 +1,29 @@
+milvus:
+  cluster:
+    enabled: false
+
+  etcd:
+    enabled: false
+
+  pulsarv3:
+    enabled: false
+
+  minio:
+    enabled: false
+    tls:
+      enabled: false
+
+  extraConfigFiles:
+    user.yaml: |+
+      etcd:
+        use:
+          embed: true
+        data:
+          dir: /var/lib/milvus/etcd
+      common:
+        storageType: local
+
+  attu:
+    enabled: true
+    route:
+      enabled: true

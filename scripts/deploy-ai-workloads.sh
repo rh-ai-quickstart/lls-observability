@@ -61,8 +61,32 @@ done
 print_status "MCP servers deployed. Waiting for readiness..."
 sleep 30
 
+# Deploy Milvus vector database
+print_status "Step 2: Deploying Milvus vector database..."
+
+if [ -d "$HELM_DIR/03-ai-services/milvus" ]; then
+    if ! release_exists "milvus" "$AI_SERVICES_NAMESPACE"; then
+        print_status "Adding Milvus Helm repository..."
+        helm repo add milvus https://zilliztech.github.io/milvus-helm/ --force-update
+        helm repo update
+        
+        print_status "Building Milvus chart dependencies..."
+        helm dependency build "$HELM_DIR/03-ai-services/milvus"
+        
+        print_status "Installing Milvus vector database in $AI_SERVICES_NAMESPACE..."
+        helm install milvus "$HELM_DIR/03-ai-services/milvus" -n "$AI_SERVICES_NAMESPACE"
+    else
+        print_warning "Milvus already installed, skipping..."
+    fi
+else
+    print_warning "Milvus chart not found, skipping..."
+fi
+
+print_status "Milvus deployed. Waiting for readiness..."
+sleep 30
+
 # Deploy AI services with specific configurations
-print_status "Step 2: Deploying AI services..."
+print_status "Step 3: Deploying AI services..."
 
 # Deploy llama3.2-3b with GPU configuration
 if [ -d "$HELM_DIR/03-ai-services/llama3.2-3b" ]; then
@@ -127,7 +151,7 @@ print_status "AI workloads deployment completed!"
 echo ""
 echo "Deployment summary:"
 echo "- MCP Servers: weather, hr-api (in $AI_SERVICES_NAMESPACE namespace)"
-echo "- AI Services: llama3.2-3b, llama-stack-instance, playground, llama-guard (in $AI_SERVICES_NAMESPACE namespace)"
+echo "- AI Services: milvus, llama3.2-3b, llama-stack-instance, playground, llama-guard (in $AI_SERVICES_NAMESPACE namespace)"
 echo ""
 echo "Next steps:"
 echo "1. Check deployment status: oc get pods -n $AI_SERVICES_NAMESPACE"
