@@ -121,12 +121,12 @@ llamaStack:
     storageClass: ""
 
 # MCP servers configuration (used in ConfigMap template)
-mcpServers: []
-# Example:
-# - name: "weather"
-#   uri: "http://mcp-weather:80"
-# - name: "hr-api-tools"  
-#   uri: "http://hr-enterprise-api:80"
+mcpServers:
+  - name: "weather"
+    uri: "http://mcp-weather.llama-serve.svc.cluster.local:80"
+  - name: "hr-api-tools"  
+    uri: "http://hr-api.llama-serve.svc.cluster.local:80"
+# To disable MCP servers, set mcpServers: []
 
 # OpenTelemetry Collector configuration
 otelCollector:

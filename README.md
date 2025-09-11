@@ -51,7 +51,7 @@ All components are organized by dependency layers in the [`./helm/`](./helm/) di
 - **[`distributed-tracing-ui-plugin`](./helm/02-observability/distributed-tracing-ui-plugin/)** - OpenShift console integration for tracing
 
 #### Phase 3: AI Services (`./helm/03-ai-services/`)
-- **[`llama-stack`](./helm/03-ai-services/llama-stack/)** - Complete Llama Stack deployment with configurable endpoints
+- **[`llama-stack-instance`](./helm/03-ai-services/llama-stack-instance/)** - Complete Llama Stack deployment with configurable endpoints
 - **[`llama3.2-3b`](./helm/03-ai-services/llama3.2-3b/)** - Optimized Llama 3.2 3B model deployment on vLLM
 - **[`llama-stack-playground`](./helm/03-ai-services/llama-stack-playground/)** - Interactive Llama-Stack web interface for testing
 - **[`llama-guard`](./helm/03-ai-services/llama-guard/)** - Content moderation service
@@ -147,13 +147,23 @@ make deploy-ai              # Phase 3
 
 ### Manual Step-by-Step Installation
 
-For users who prefer to understand each step or need to customize the installation:
+For users who prefer to understand each step or need to customize the installation.
+
+Set these environment variables before running the installation commands:
+
+```bash
+export OBSERVABILITY_NAMESPACE="observability-hub"
+export UWM_NAMESPACE="openshift-user-workload-monitoring"
+export AI_SERVICES_NAMESPACE="llama-serve"
+```
+
+Launch this instructions:
 
 ```bash
 # 1. Create required namespaces
-oc create namespace observability-hub
-oc create namespace openshift-user-workload-monitoring
-oc create namespace llama-serve
+oc create namespace ${OBSERVABILITY_NAMESPACE}
+oc create namespace ${UWM_NAMESPACE}
+oc create namespace ${AI_SERVICES_NAMESPACE}
 
 # 2. Install required operators
 helm install cluster-observability-operator ./helm/01-operators/cluster-observability-operator
@@ -166,37 +176,36 @@ oc wait --for=condition=Ready pod -l app.kubernetes.io/name=cluster-observabilit
 oc wait --for=condition=Ready pod -l app.kubernetes.io/name=observability-operator -n openshift-cluster-observability-operator --timeout=300s
 
 # 4. Deploy observability infrastructure
-helm install tempo ./helm/02-observability/tempo -n observability-hub
-helm install otel-collector ./helm/02-observability/otel-collector -n observability-hub
-helm install grafana ./helm/02-observability/grafana -n observability-hub
+helm install tempo ./helm/02-observability/tempo -n ${OBSERVABILITY_NAMESPACE}
+helm install otel-collector ./helm/02-observability/otel-collector -n ${OBSERVABILITY_NAMESPACE}
+helm install grafana ./helm/02-observability/grafana -n ${OBSERVABILITY_NAMESPACE}
 
 # 5. Enable User Workload Monitoring for AI workloads
-helm template uwm ./helm/02-observability/uwm -n observability-hub | oc apply -f-
+helm template uwm ./helm/02-observability/uwm -n ${OBSERVABILITY_NAMESPACE} | oc apply -f-
 
 # Verify UWM setup
-oc get configmap user-workload-monitoring-config -n openshift-user-workload-monitoring
-oc get podmonitors -n observability-hub
+oc get configmap user-workload-monitoring-config -n ${UWM_NAMESPACE}
+oc get podmonitors -n ${OBSERVABILITY_NAMESPACE}
 
 # 6. Deploy AI workloads
-# Deploy MCP servers in llama-serve namespace
-helm install mcp-weather ./helm/04-mcp-servers/mcp-weather -n llama-serve
-helm install hr-api ./helm/04-mcp-servers/hr-api -n llama-serve
+# Deploy MCP servers in AI services namespace
+helm install mcp-weather ./helm/04-mcp-servers/mcp-weather -n ${AI_SERVICES_NAMESPACE}
+helm install hr-api ./helm/04-mcp-servers/hr-api -n ${AI_SERVICES_NAMESPACE}
 
-# Deploy AI services in llama-serve namespace  
-helm install llama3-2-3b ./helm/03-ai-services/llama3.2-3b -n llama-serve \
+# Deploy AI services in AI services namespace  
+helm install llama3-2-3b ./helm/03-ai-services/llama3.2-3b -n ${AI_SERVICES_NAMESPACE} \
   --set model.name="meta-llama/Llama-3.2-3B-Instruct" \
   --set resources.limits."nvidia\.com/gpu"=1
 
-helm install llama-stack ./helm/03-ai-services/llama-stack -n llama-serve \
-  --set 'inference.endpoints[0].url=http://llama3-2-3b.llama-serve.svc.cluster.local:80/v1' \
+helm install llama-stack-instance ./helm/03-ai-services/llama-stack-instance -n ${AI_SERVICES_NAMESPACE} \
   --set 'mcpServers[0].name=weather' \
-  --set 'mcpServers[0].uri=http://mcp-weather.llama-serve.svc.cluster.local:80' \
+  --set 'mcpServers[0].uri=http://mcp-weather.${AI_SERVICES_NAMESPACE}.svc.cluster.local:80' \
   --set 'mcpServers[0].description=Weather MCP Server for real-time weather data'
 
-helm install llama-stack-playground ./helm/03-ai-services/llama-stack-playground -n llama-serve \
-  --set playground.llamaStackUrl="http://llama-stack.llama-serve.svc.cluster.local:80"
+helm install llama-stack-playground ./helm/03-ai-services/llama-stack-playground -n ${AI_SERVICES_NAMESPACE} \
+  --set playground.llamaStackUrl="http://llama-stack-instance.${AI_SERVICES_NAMESPACE}.svc.cluster.local:80"
 
-helm install llama-guard ./helm/03-ai-services/llama-guard -n llama-serve
+helm install llama-guard ./helm/03-ai-services/llama-guard -n ${AI_SERVICES_NAMESPACE}
 
 # 7. Enable tracing UI
 helm install distributed-tracing-ui-plugin ./helm/02-observability/distributed-tracing-ui-plugin
@@ -207,40 +216,39 @@ helm install distributed-tracing-ui-plugin ./helm/02-observability/distributed-t
 #### Deploy Llama 3.2-3B on vLLM
 
 ```bash
-helm install llama3-2-3b ./helm/03-ai-services/llama3.2-3b -n llama-serve \
+helm install llama3-2-3b ./helm/03-ai-services/llama3.2-3b -n ${AI_SERVICES_NAMESPACE} \
   --set model.name="meta-llama/Llama-3.2-3B-Instruct" \
   --set resources.limits."nvidia\.com/gpu"=1 \
   --set nodeSelector."nvidia\.com/gpu\.present"="true"
 ```
 
+#### Deploy Llama Guard
+
+```bash
+helm install llama-guard ./helm/03-ai-services/llama-guard -n ${AI_SERVICES_NAMESPACE}
+```
+
 #### Deploy MCP Servers
 
 ```bash
-helm install mcp-weather ./helm/04-mcp-servers/mcp-weather -n llama-serve
-helm install hr-api ./helm/04-mcp-servers/hr-api -n llama-serve
+helm install mcp-weather ./helm/04-mcp-servers/mcp-weather -n ${AI_SERVICES_NAMESPACE}
+helm install hr-api ./helm/04-mcp-servers/hr-api -n ${AI_SERVICES_NAMESPACE}
 ```
 
 #### Deploy Llama Stack
 
 ```bash
-helm install llama-stack ./helm/03-ai-services/llama-stack -n llama-serve \
-  --set 'inference.endpoints[0].url=http://llama3-2-3b.llama-serve.svc.cluster.local:80/v1' \
+helm install llama-stack-instance ./helm/03-ai-services/llama-stack-instance -n ${AI_SERVICES_NAMESPACE} \
   --set 'mcpServers[0].name=weather' \
-  --set 'mcpServers[0].uri=http://mcp-weather.llama-serve.svc.cluster.local:80' \
+  --set 'mcpServers[0].uri=http://mcp-weather.${AI_SERVICES_NAMESPACE}.svc.cluster.local:80' \
   --set 'mcpServers[0].description=Weather MCP Server for real-time weather data'
 ```
 
 #### Deploy the Playground
 
 ```bash
-helm install llama-stack-playground ./helm/03-ai-services/llama-stack-playground -n llama-serve \
-  --set playground.llamaStackUrl="http://llama-stack.llama-serve.svc.cluster.local:80"
-```
-
-#### Deploy Llama Guard
-
-```bash
-helm install llama-guard ./helm/03-ai-services/llama-guard -n llama-serve
+helm install llama-stack-playground ./helm/03-ai-services/llama-stack-playground -n ${AI_SERVICES_NAMESPACE} \
+  --set playground.llamaStackUrl="http://llama-stack-instance.${AI_SERVICES_NAMESPACE}.svc.cluster.local:80"
 ```
 
 ### Development and Testing
@@ -253,17 +261,17 @@ make validate
 
 # Validate specific charts
 make lint-chart CHART=tempo
-make template-chart CHART=llama-stack
+make template-chart CHART=llama-stack-instance
 ```
 
 #### Individual Chart Management
 
 ```bash
 # Install specific chart
-make install-chart CHART=grafana NAMESPACE=observability-hub
+make install-chart CHART=grafana NAMESPACE=${OBSERVABILITY_NAMESPACE}
 
 # Uninstall specific chart  
-make uninstall-chart CHART=grafana NAMESPACE=observability-hub
+make uninstall-chart CHART=grafana NAMESPACE=${OBSERVABILITY_NAMESPACE}
 ```
 
 ## References

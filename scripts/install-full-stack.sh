@@ -231,23 +231,22 @@ install_ai_workloads() {
         print_warning "llama3-2-3b already installed, skipping..."
     fi
     
-    # Install llama-stack with inference endpoint configuration
-    if ! release_exists "llama-stack" "$AI_SERVICES_NAMESPACE"; then
-        print_status "Installing llama-stack in $AI_SERVICES_NAMESPACE..."
-        helm install llama-stack "$HELM_DIR/03-ai-services/llama-stack" -n "$AI_SERVICES_NAMESPACE" \
-            --set 'inference.endpoints[0].url=http://llama3-2-3b.llama-serve.svc.cluster.local:80/v1' \
+    # Install llama-stack-instance with inference endpoint configuration
+    if ! release_exists "llama-stack-instance" "$AI_SERVICES_NAMESPACE"; then
+        print_status "Installing llama-stack-instance in $AI_SERVICES_NAMESPACE..."
+        helm install llama-stack-instance "$HELM_DIR/03-ai-services/llama-stack-instance" -n "$AI_SERVICES_NAMESPACE" \
             --set 'mcpServers[0].name=weather' \
             --set 'mcpServers[0].uri=http://mcp-weather.llama-serve.svc.cluster.local:80' \
             --set 'mcpServers[0].description=Weather MCP Server for real-time weather data'
     else
-        print_warning "llama-stack already installed, skipping..."
+        print_warning "llama-stack-instance already installed, skipping..."
     fi
     
     # Install playground
     if ! release_exists "llama-stack-playground" "$AI_SERVICES_NAMESPACE"; then
         print_status "Installing llama-stack-playground in $AI_SERVICES_NAMESPACE..."
         helm install llama-stack-playground "$HELM_DIR/03-ai-services/llama-stack-playground" -n "$AI_SERVICES_NAMESPACE" \
-            --set playground.llamaStackUrl="http://llama-stack.llama-serve.svc.cluster.local:80"
+            --set playground.llamaStackUrl="http://llama-stack-instance.llama-serve.svc.cluster.local:80"
     else
         print_warning "llama-stack-playground already installed, skipping..."
     fi
