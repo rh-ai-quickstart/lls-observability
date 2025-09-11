@@ -192,11 +192,8 @@ oc get podmonitors -n ${OBSERVABILITY_NAMESPACE}
 helm install mcp-weather ./helm/04-mcp-servers/mcp-weather -n ${AI_SERVICES_NAMESPACE}
 helm install hr-api ./helm/04-mcp-servers/hr-api -n ${AI_SERVICES_NAMESPACE}
 
-# Deploy Milvus vector database
-helm repo add milvus https://zilliztech.github.io/milvus-helm/
-helm repo update
-helm dependency build ./helm/03-ai-services/milvus
-helm install milvus ./helm/03-ai-services/milvus -n ${AI_SERVICES_NAMESPACE}
+# Milvus vector database is configured inline within llama-stack-instance
+# No external Milvus deployment needed
 
 # Deploy AI services in AI services namespace  
 helm install llama3-2-3b ./helm/03-ai-services/llama3.2-3b -n ${AI_SERVICES_NAMESPACE} \
@@ -241,14 +238,9 @@ helm install mcp-weather ./helm/04-mcp-servers/mcp-weather -n ${AI_SERVICES_NAME
 helm install hr-api ./helm/04-mcp-servers/hr-api -n ${AI_SERVICES_NAMESPACE}
 ```
 
-#### Deploy Milvus Vector Database
+#### Vector Database Configuration
 
-```bash
-helm repo add milvus https://zilliztech.github.io/milvus-helm/
-helm repo update
-helm dependency build ./helm/03-ai-services/milvus
-helm install milvus ./helm/03-ai-services/milvus -n ${AI_SERVICES_NAMESPACE}
-```
+Milvus vector database is configured inline within the llama-stack-instance deployment. No external Milvus deployment is required - vector storage is handled automatically within the LlamaStack container.
 
 #### Deploy Llama Stack
 

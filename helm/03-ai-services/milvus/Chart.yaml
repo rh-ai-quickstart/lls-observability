@@ -1,8 +1,0 @@
-apiVersion: v2
-name: milvus
-description: A Helm chart to deploy Milvus
-version: 1.0.1
-dependencies:
-  - name: milvus
-    version: 4.2.52
-    repository: https://zilliztech.github.io/milvus-helm/
