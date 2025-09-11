@@ -60,7 +60,8 @@ llamaStackDistribution:
       # name: rh-dev
       
       # Alternative: direct container image reference (mutually exclusive with name)
-      image: "quay.io/eformat/distribution-remote-vllm:0.2.15"
+      #image: "quay.io/eformat/distribution-remote-vllm:0.2.15"
+      image: "quay.io/rhoai-genaiops/llama-stack-vllm-milvus:0.2.11"
     
     # User configuration
     userConfig:
