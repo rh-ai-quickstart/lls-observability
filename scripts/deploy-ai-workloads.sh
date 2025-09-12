@@ -90,12 +90,10 @@ sleep 60
 if [ -d "$HELM_DIR/03-ai-services/llama-stack-instance" ]; then
     if ! release_exists "llama-stack-instance" "$AI_SERVICES_NAMESPACE"; then
         print_status "Installing llama-stack-instance in $AI_SERVICES_NAMESPACE..."
-        helm install llama-stack-instance "$HELM_DIR/03-ai-services/llama-stack-instance" -n "$AI_SERVICES_NAMESPACE" \
-            --set 'mcpServers[0].name=weather' \
-            --set 'mcpServers[0].uri=http://mcp-weather.llama-serve.svc.cluster.local:80' \
-            --set 'mcpServers[0].description=Weather MCP Server for real-time weather data'
+        helm install llama-stack-instance "$HELM_DIR/03-ai-services/llama-stack-instance" -n "$AI_SERVICES_NAMESPACE"
     else
-        print_warning "llama-stack-instance already installed, skipping..."
+        print_warning "llama-stack-instance already installed, upgrading to include OpenShift MCP server..."
+        helm upgrade llama-stack-instance "$HELM_DIR/03-ai-services/llama-stack-instance" -n "$AI_SERVICES_NAMESPACE"
     fi
 else
     print_warning "llama-stack-instance chart not found, skipping..."
@@ -130,7 +128,7 @@ print_status "AI workloads deployment completed!"
 
 echo ""
 echo "Deployment summary:"
-echo "- MCP Servers: weather, hr-api (in $AI_SERVICES_NAMESPACE namespace)"
+echo "- MCP Servers: weather, hr-api, openshift-mcp (in $AI_SERVICES_NAMESPACE namespace)"
 echo "- AI Services: llama3.2-3b, llama-stack-instance (with inline Milvus), playground, llama-guard (in $AI_SERVICES_NAMESPACE namespace)"
 echo ""
 echo "Next steps:"

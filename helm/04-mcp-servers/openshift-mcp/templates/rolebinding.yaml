@@ -1,0 +1,16 @@
+{{- if .Values.rbac.create -}}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "openshift-mcp.fullname" . }}
+  labels:
+    {{- include "openshift-mcp.labels" . | nindent 4 }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "openshift-mcp.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: edit
+{{- end }}

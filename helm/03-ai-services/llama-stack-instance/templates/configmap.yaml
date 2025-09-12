@@ -153,7 +153,7 @@ data:
     - toolgroup_id: mcp::{{ .name }}
       provider_id: model-context-protocol
       mcp_endpoint:
-        uri: {{ .uri }}{{ if eq .name "weather" }}/sse{{ end }}
+        uri: {{ .uri }}{{ if or (eq .name "weather") (eq .name "hr-api-tools") (eq .name "openshift") }}/sse{{ end }}
     {{- end }}
     server:
       port: 8321

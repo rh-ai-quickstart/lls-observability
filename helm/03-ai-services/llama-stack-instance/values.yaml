@@ -125,11 +125,12 @@ mcpServers:
   - name: "weather"
     uri: "http://mcp-weather.llama-serve.svc.cluster.local:80"
   - name: "hr-api-tools"  
-    uri: "http://hr-api.llama-serve.svc.cluster.local:80"
-# To disable MCP servers, set mcpServers: []
+    uri: "http://hr-enterprise-api.llama-serve.svc.cluster.local:80"
+  - name: "openshift"
+    uri: "http://ocp-mcp-server.llama-serve.svc.cluster.local:8000"
+# HR-API should support MCP protocol with /sse endpoint
 
 # Vector Database configuration - uses inline Milvus only
-# External Milvus deployment removed for simplicity
 
 # OpenTelemetry Collector configuration
 otelCollector:

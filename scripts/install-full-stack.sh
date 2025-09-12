@@ -237,12 +237,10 @@ install_ai_workloads() {
     # Install llama-stack-instance with inference endpoint configuration
     if ! release_exists "llama-stack-instance" "$AI_SERVICES_NAMESPACE"; then
         print_status "Installing llama-stack-instance in $AI_SERVICES_NAMESPACE..."
-        helm install llama-stack-instance "$HELM_DIR/03-ai-services/llama-stack-instance" -n "$AI_SERVICES_NAMESPACE" \
-            --set 'mcpServers[0].name=weather' \
-            --set 'mcpServers[0].uri=http://mcp-weather.llama-serve.svc.cluster.local:80' \
-            --set 'mcpServers[0].description=Weather MCP Server for real-time weather data'
+        helm install llama-stack-instance "$HELM_DIR/03-ai-services/llama-stack-instance" -n "$AI_SERVICES_NAMESPACE"
     else
-        print_warning "llama-stack-instance already installed, skipping..."
+        print_warning "llama-stack-instance already installed, upgrading to include OpenShift MCP server..."
+        helm upgrade llama-stack-instance "$HELM_DIR/03-ai-services/llama-stack-instance" -n "$AI_SERVICES_NAMESPACE"
     fi
     
     # Install playground

@@ -1,0 +1,139 @@
+# Default values for openshift-mcp
+# This is a YAML-formatted file.
+
+replicaCount: 1
+
+image:
+  repository: quay.io/hveeradh/ocp-mcp-server
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  name: "ocp-mcp"
+
+# Override service name to match llama-stack-instance configuration
+serviceName: "ocp-mcp-server"
+
+podAnnotations: {}
+
+podSecurityContext:
+  runAsNonRoot: true
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: false
+  runAsNonRoot: true
+
+service:
+  type: ClusterIP
+  port: 8000
+  targetPort: http
+  annotations: {}
+
+route:
+  enabled: false
+  annotations: {}
+  host: ""
+  tls:
+    enabled: true
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: openshift-mcp.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+resources:
+  limits:
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 256Mi
+
+livenessProbe: {}
+  # httpGet:
+  #   path: /health
+  #   port: http
+  # initialDelaySeconds: 30
+  # periodSeconds: 10
+  # timeoutSeconds: 5
+  # failureThreshold: 3
+
+readinessProbe: {}
+  # httpGet:
+  #   path: /ready
+  #   port: http
+  # initialDelaySeconds: 5
+  # periodSeconds: 5
+  # timeoutSeconds: 3
+  # failureThreshold: 3
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 70
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+# Environment variables
+env: {}
+
+# MCP Server configuration
+mcpServer:
+  port: 8000
+  args:
+    - "--sse-port"
+    - "8000"
+
+# RBAC configuration
+rbac:
+  create: true
+  rules:
+    - apiGroups: [""]
+      resources: ["pods", "services", "endpoints", "configmaps", "secrets"]
+      verbs: ["get", "list", "watch"]
+    - apiGroups: ["apps"]
+      resources: ["deployments", "replicasets", "daemonsets", "statefulsets"]
+      verbs: ["get", "list", "watch"]
+    - apiGroups: ["extensions", "networking.k8s.io"]
+      resources: ["ingresses"]
+      verbs: ["get", "list", "watch"]
+    - apiGroups: ["route.openshift.io"]
+      resources: ["routes"]
+      verbs: ["get", "list", "watch"]
+
+# Network Policies
+networkPolicy:
+  enabled: true
+  ingress:
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            name: llama-serve
+      ports:
+      - protocol: TCP
+        port: 8000
