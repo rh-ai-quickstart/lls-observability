@@ -27,6 +27,16 @@ This telemetry and observability kickstart addresses the critical needs for Larg
 
 This repository provides helm charts for both the monitoring infrastructure and AI service deployments needed to run Llama Stack reliably in production environments.
 
+## FSI Use Case: Financial AI Audit System
+
+This quickstart includes a **Financial Services Industry (FSI) compliance demo** that demonstrates auditability and traceability for AI-powered financial applications.
+
+The demo shows how distributed tracing captures every step of an AI-driven loan decision process:
+
+![FSI Tracing Flow](assets/images/traces4.png)
+
+This provides complete audit trails for regulatory compliance and risk management in financial AI systems.
+
 ### Architecture
 
 The proposed observability & telemetry architecture:
