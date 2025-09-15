@@ -1,6 +1,6 @@
 # Llama Stack Telemetry & Observability
 
-Observability & telemetry kickstart for both Llama-Stack and OpenShift AI.
+Observability & telemetry quickstart for both Llama-Stack and OpenShift AI.
 
 This repository provides helm charts for deploying AI services with telemetry and observability on Llama-Stack, OpenShift and OpenShift AI.
 
@@ -14,16 +14,16 @@ Jump straight to [installation](#installation) to get started quickly.
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Advanced Usage](#advanced-usage)
+    - [Uninstall](#uninstall)
 - [References](#references)
 
 ## Detailed description
 
-This telemetry and observability kickstart addresses the critical needs for Large Language Model (LLM) infrastructure. As AI workloads become more complex, organizations need:
+This telemetry and observability quickstart addresses the critical needs for Large Language Model (LLM) infrastructure. As AI workloads become more complex, organizations need:
 
 - **AI observability** into model performance, resource utilization, and distributed tracing
 - **Standardized deployment patterns** for consistent, scalable AI service delivery
 - **Enterprise-grade monitoring** with OpenShift-native observability tools
-- **Production-ready configurations** that follow cloud-native best practices
 
 This repository provides helm charts for both the monitoring infrastructure and AI service deployments needed to run Llama Stack reliably in production environments.
 
@@ -61,14 +61,15 @@ All components are organized by dependency layers in the [`./helm/`](./helm/) di
 - **[`distributed-tracing-ui-plugin`](./helm/02-observability/distributed-tracing-ui-plugin/)** - OpenShift console integration for tracing
 
 #### Phase 3: AI Services (`./helm/03-ai-services/`)
-- **[`llama-stack-instance`](./helm/03-ai-services/llama-stack-instance/)** - Complete Llama Stack deployment with configurable endpoints
-- **[`llama3.2-3b`](./helm/03-ai-services/llama3.2-3b/)** - Optimized Llama 3.2 3B model deployment on vLLM
+- **[`llama-stack-instance`](./helm/03-ai-services/llama-stack-instance/)** - Complete Llama Stack Instance with configurable endpoints
+- **[`llama3.2-3b`](./helm/03-ai-services/llama3.2-3b/)** - Llama 3.2 3B model deployment on vLLM
 - **[`llama-stack-playground`](./helm/03-ai-services/llama-stack-playground/)** - Interactive Llama-Stack web interface for testing
-- **[`llama-guard`](./helm/03-ai-services/llama-guard/)** - Content moderation service
+- **[`llama-guard`](./helm/03-ai-services/llama-guard/)** - Llama Guard 1B for providing Safety / Shield mechanisms 
 
 #### Phase 4: MCP Servers (`./helm/04-mcp-servers/`)
 - **[`mcp-weather`](./helm/04-mcp-servers/mcp-weather/)** - MCP weather service
 - **[`hr-api`](./helm/04-mcp-servers/hr-api/)** - MCP HR API demonstration service
+- **[`openshift-mcp`](./helm/04-mcp-servers/openshift-mcp/)** - MCP OpenShift/Kubernetes operations service
 
 ### Observability in Action
 
@@ -224,71 +225,12 @@ helm install llama-guard ./helm/03-ai-services/llama-guard -n ${AI_SERVICES_NAME
 helm install distributed-tracing-ui-plugin ./helm/02-observability/distributed-tracing-ui-plugin
 ```
 
-### Individual Component Deployment
+### Uninstall
 
-#### Deploy Llama 3.2-3B on vLLM
-
+**Complete Stack Uninstall**
 ```bash
-helm install llama3-2-3b ./helm/03-ai-services/llama3.2-3b -n ${AI_SERVICES_NAMESPACE} \
-  --set model.name="meta-llama/Llama-3.2-3B-Instruct" \
-  --set resources.limits."nvidia\.com/gpu"=1 \
-  --set nodeSelector."nvidia\.com/gpu\.present"="true"
-```
-
-#### Deploy Llama Guard
-
-```bash
-helm install llama-guard ./helm/03-ai-services/llama-guard -n ${AI_SERVICES_NAMESPACE}
-```
-
-#### Deploy MCP Servers
-
-```bash
-helm install mcp-weather ./helm/04-mcp-servers/mcp-weather -n ${AI_SERVICES_NAMESPACE}
-helm install hr-api ./helm/04-mcp-servers/hr-api -n ${AI_SERVICES_NAMESPACE}
-```
-
-#### Vector Database Configuration
-
-Milvus vector database is configured inline within the llama-stack-instance deployment. No external Milvus deployment is required - vector storage is handled automatically within the LlamaStack container.
-
-#### Deploy Llama Stack
-
-```bash
-helm install llama-stack-instance ./helm/03-ai-services/llama-stack-instance -n ${AI_SERVICES_NAMESPACE} \
-  --set 'mcpServers[0].name=weather' \
-  --set 'mcpServers[0].uri=http://mcp-weather.${AI_SERVICES_NAMESPACE}.svc.cluster.local:80' \
-  --set 'mcpServers[0].description=Weather MCP Server for real-time weather data'
-```
-
-#### Deploy the Playground
-
-```bash
-helm install llama-stack-playground ./helm/03-ai-services/llama-stack-playground -n ${AI_SERVICES_NAMESPACE} \
-  --set playground.llamaStackUrl="http://llama-stack-instance.${AI_SERVICES_NAMESPACE}.svc.cluster.local:80"
-```
-
-### Development and Testing
-
-#### Validate Configurations
-
-```bash
-# Validate all configurations
-make validate
-
-# Validate specific charts
-make lint-chart CHART=tempo
-make template-chart CHART=llama-stack-instance
-```
-
-#### Individual Chart Management
-
-```bash
-# Install specific chart
-make install-chart CHART=grafana NAMESPACE=${OBSERVABILITY_NAMESPACE}
-
-# Uninstall specific chart  
-make uninstall-chart CHART=grafana NAMESPACE=${OBSERVABILITY_NAMESPACE}
+# Uninstall everything in reverse order
+make clean
 ```
 
 ## References
@@ -304,7 +246,3 @@ make uninstall-chart CHART=grafana NAMESPACE=${OBSERVABILITY_NAMESPACE}
 - [OpenTelemetry](https://opentelemetry.io/)
 - [Grafana](https://grafana.com/)
 - [Tempo](https://grafana.com/oss/tempo/)
-
-### Community
-- [Red Hat AI Kickstarts](https://github.com/rh-ai-kickstart)
-- [OpenShift AI Documentation](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_cloud_service)
