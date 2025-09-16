@@ -38,6 +38,15 @@ data:
       - provider_id: sentence-transformers
         provider_type: inline::sentence-transformers
         config: {}
+      {{- if .Values.maas.enabled }}
+      - provider_id: maas
+        provider_type: remote::vllm
+        config:
+          url: {{ .Values.maas.url | quote }}
+          max_tokens: {{ .Values.maas.maxTokens }}
+          api_token: {{ .Values.maas.apiToken | quote }}
+          tls_verify: {{ .Values.maas.tlsVerify }}
+      {{- end }}
       vector_io:
       - provider_id: milvus
         provider_type: inline::milvus
@@ -142,6 +151,12 @@ data:
       model_id: ${env.SAFETY_MODEL:meta-llama/Llama-Guard-3-1B}
       provider_id: vllm-safety
       model_type: llm
+    {{- if .Values.maas.enabled }}
+    - metadata: {}
+      model_id: {{ .Values.maas.modelId | default "Llama-4-Scout-17B-16E-W4A16" }}
+      provider_id: maas
+      model_type: llm
+    {{- end }}
     shields:
     - shield_id: ${env.SAFETY_MODEL:meta-llama/Llama-Guard-3-1B}
     vector_dbs: []

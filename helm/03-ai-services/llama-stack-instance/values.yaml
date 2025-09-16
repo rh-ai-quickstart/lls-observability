@@ -132,6 +132,15 @@ mcpServers:
 
 # Vector Database configuration - uses inline Milvus only
 
+# MaaS provider configuration (optional)
+maas:
+  enabled: false
+  apiToken: "your_token"  # Replace with actual token
+  url: "https://litellm-litemaas.apps.prod.rhoai.rh-aiservices-bu.com/v1"
+  maxTokens: 200000
+  tlsVerify: false
+  modelId: "Llama-4-Scout-17B-16E-W4A16"
+
 # OpenTelemetry Collector configuration
 otelCollector:
   enabled: true

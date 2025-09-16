@@ -14,6 +14,7 @@ Jump straight to [installation](#installation) to get started quickly.
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Advanced Usage](#advanced-usage)
+    - [MaaS Integration (Optional)](#maas-integration-optional)
     - [Uninstall](#uninstall)
 - [References](#references)
 
@@ -223,6 +224,23 @@ helm install llama-guard ./helm/03-ai-services/llama-guard -n ${AI_SERVICES_NAME
 
 # 7. Enable tracing UI
 helm install distributed-tracing-ui-plugin ./helm/02-observability/distributed-tracing-ui-plugin
+```
+
+### MaaS Integration (Optional)
+
+**Model-as-a-Service (MaaS) Remote Models**
+
+The Llama Stack can optionally integrate with external MaaS (Models as a Server) to access remote models without local GPU requirements.
+
+**Configuration Options:**
+```yaml
+maas:
+  enabled: true                    # Enable MaaS provider
+  apiToken: "your-api-token"      # Authentication token
+  url: "https://endpoint.com/v1"  # MaaS endpoint URL
+  maxTokens: 200000               # Maximum token limit
+  tlsVerify: false                # TLS verification
+  modelId: "model-name"           # Specific model identifier
 ```
 
 ### Uninstall
