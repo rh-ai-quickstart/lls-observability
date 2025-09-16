@@ -42,7 +42,9 @@ This provides complete audit trails for regulatory compliance and risk managemen
 
 The proposed observability & telemetry architecture:
 
-![observability architecture diagram](./assets/images/architecture.png).
+![observability architecture diagram](./assets/images/architecture.png)
+
+This architecture demonstrates the complete observability ecosystem, from AI workload telemetry collection through distributed tracing to comprehensive monitoring dashboards.
 
 ### Components
 
@@ -240,7 +242,7 @@ maas:
   url: "https://endpoint.com/v1"  # MaaS endpoint URL
   maxTokens: 200000               # Maximum token limit
   tlsVerify: false                # TLS verification
-  modelId: "model-name"           # Specific model identifier
+  modelId: "model-name"           # Specific MaaS model identifier
 ```
 
 ### Uninstall

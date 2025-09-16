@@ -128,58 +128,6 @@ llamaStackDistribution:
       configMapName: my-custom-config
 ```
 
-### Advanced Pod Overrides
-
-```yaml
-# values.yaml
-llamaStackDistribution:
-  server:
-    podOverrides:
-      serviceAccountName: custom-sa
-      volumeMounts:
-        - name: custom-volume
-          mountPath: /custom/path
-      volumes:
-        - name: custom-volume
-          configMap:
-            name: custom-config
-```
-
-## Monitoring
-
-### Check LlamaStackDistribution Status
-
-```bash
-# List all distributions
-kubectl get llamastackdistributions -A
-
-# Check specific distribution
-kubectl get llamastackdistribution my-llama-stack -o yaml
-
-# Watch for changes
-kubectl get llamastackdistribution my-llama-stack -w
-```
-
-### View Operator-Created Resources
-
-```bash
-# View all resources created by the operator
-kubectl get all -l app.kubernetes.io/created-by=llama-stack-operator
-
-# Check specific resource types
-kubectl get pods,svc,configmap,pvc -l app.kubernetes.io/managed-by=llama-stack-operator
-```
-
-### Monitor Operator
-
-```bash
-# Check operator status
-kubectl get pods -n llama-stack-k8s-operator-system
-
-# View operator logs
-kubectl logs -l control-plane=controller-manager -n llama-stack-k8s-operator-system -f
-```
-
 ## Upgrading
 
 To upgrade a Llama Stack instance:
