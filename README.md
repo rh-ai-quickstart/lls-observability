@@ -109,16 +109,6 @@ These traces provide insights into:
 - **Helm 3.8+** for chart deployment
 - **oc CLI** or **kubectl** for cluster management
 
-### Required Operators
-
-Install these operators from OperatorHub before deploying the observability stack:
-
-Install manually from OperatorHub:
-- Red Hat Build of OpenTelemetry Operator
-- Tempo Operator
-- Cluster Observability Operator
-- Grafana Operator
-
 ### Required Permissions
 
 - **Cluster Admin** - Required for operator installation and observability stack setup
@@ -256,7 +246,7 @@ make clean
 ## References
 
 ### Documentation
-- [OpenShift Distributed Tracing (Tempo)](https://docs.redhat.com/en/documentation/openshift_container_platform/4.18/html/distributed_tracing/distributed-tracing-platform-tempo)
+- [OpenShift Distributed Tracing](https://docs.redhat.com/en/documentation/openshift_container_platform/4.19/html/distributed_tracing/index)
 - [OpenShift Observability](https://docs.redhat.com/en/documentation/openshift_container_platform/4.18/html/monitoring)
 - [User Workload Monitoring](https://docs.redhat.com/en/documentation/openshift_container_platform/4.18/html/monitoring/enabling-monitoring-for-user-defined-projects)
 
@@ -266,3 +256,7 @@ make clean
 - [OpenTelemetry](https://opentelemetry.io/)
 - [Grafana](https://grafana.com/)
 - [Tempo](https://grafana.com/oss/tempo/)
+
+### Community
+- [Red Hat AI Quickstarts](https://github.com/rh-ai-quickstart)
+- [OpenShift AI Documentation](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_cloud_service)
