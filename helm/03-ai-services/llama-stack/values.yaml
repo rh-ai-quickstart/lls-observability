@@ -1,0 +1,213 @@
+# Default values for llama-stack
+replicaCount: 1
+
+image:
+  # Original llamastack image (commented out)
+  # repository: llamastack/distribution-remote-vllm
+  # tag: "latest"
+  # redhat-et image with vLLM support
+  repository: quay.io/redhat-et/llama
+  tag: "vllm-0.2.6"
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext:
+  runAsNonRoot: true
+  # Remove specific UID/GID to let OpenShift assign them
+  # fsGroup: 1000
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: false
+  runAsNonRoot: true
+  # Remove specific UID/GID to let OpenShift assign them
+  # runAsUser: 1000
+  # runAsGroup: 1000
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8321
+  annotations: {}
+
+route:
+  enabled: true
+  annotations: {}
+  host: ""
+  tls:
+    enabled: true
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: llama-stack.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+resources:
+  limits:
+    # cpu: 2000m
+    memory: 4Gi
+  requests:
+    # cpu: 1000m
+    memory: 2Gi
+
+livenessProbe:
+  httpGet:
+    path: /health
+    port: http
+  initialDelaySeconds: 60
+  periodSeconds: 30
+  timeoutSeconds: 10
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /health
+    port: http
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+# Llama Stack configuration
+llamaStack:
+  configFile: "run-vllm.yaml"
+  inferenceModel: "llama3-2-3b"
+  vllmUrl: "http://llama3-2-3b-predictor:8080/v1"
+  storage:
+    size: 5Gi
+
+
+# Model inference endpoints
+inference:
+  endpoints:
+    - name: "meta-llama/Llama-3.2-3B-Instruct"
+      url: "http://llama3-2-3b:80/v1"
+      model: "meta-llama/Llama-3.2-3B-Instruct"
+
+# MaaS provider configuration (optional)
+maas:
+  enabled: false
+  apiToken: "your-api-token-here"  # Replace with actual token
+  url: "https://litellm-litemaas.apps.prod.rhoai.rh-aiservices-bu.com/v1"
+  maxTokens: 200000
+  tlsVerify: false
+  modelId: "Llama-4-Scout-17B-16E-W4A16"
+
+# MCP servers configuration
+# mcpServers:
+#   - name: "weather"
+#     uri: "http://mcp-weather:80"
+#     description: "Weather MCP Server for real-time weather data"
+  # - name: "hr-api-tools"
+  #   uri: "http://custom-mcp-server:80"
+  #   description: "HR API MCP server with employee, vacation, job, and performance tools"
+
+# Environment variables
+env:
+  LLAMA_STACK_HOST: "0.0.0.0"
+
+# ConfigMap for Llama Stack configuration
+configMap:
+  enabled: true
+  data: {}
+
+# Network Policies
+networkPolicy:
+  enabled: true
+  ingress:
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            name: openshift-ingress
+      ports:
+      - protocol: TCP
+        port: 8321
+    - from:
+      - podSelector:
+          matchLabels:
+            app.kubernetes.io/name: llama-stack-playground
+      ports:
+      - protocol: TCP
+        port: 8321
+
+# Pod Disruption Budget
+podDisruptionBudget:
+  enabled: false
+  minAvailable: 1
+
+# OpenTelemetry Collector configuration
+otelCollector:
+  enabled: true
+  name: "llamastack-otelsidecar"
+  mode: "sidecar"
+  replicas: 1
+  
+  # Observability settings
+  observability:
+    metrics:
+      address: "0.0.0.0:8888"
+  
+  # OTLP HTTP exporter configuration
+  exporter:
+    endpoint: "http://otel-collector-collector.observability-hub.svc.cluster.local:4318"
+    tls:
+      insecure: true
+  
+  # Resource configuration
+  resources: {}
+  
+  # Management and upgrade strategy
+  managementState: "managed"
+  upgradeStrategy: "automatic"
+  deploymentUpdateStrategy: {}
+  daemonSetUpdateStrategy: {}
+  
+  # Target Allocator configuration
+  targetAllocator:
+    allocationStrategy: "consistent-hashing"
+    filterStrategy: "relabel-config"
+    scrapeInterval: "30s"
+    observability:
+      metrics: {}
+    resources: {}
+  
+  # Network configuration
+  ipFamilyPolicy: "SingleStack"
+  podDnsConfig: {}
+  
+  # Ingress configuration
+  ingress:
+    route: {}

@@ -1,0 +1,16 @@
+apiVersion: v2
+name: openshift-mcp
+description: OpenShift MCP Server for Kubernetes operations
+type: application
+version: 0.1.0
+appVersion: "latest"
+keywords:
+  - mcp
+  - openshift
+  - kubernetes
+  - model-context-protocol
+home: https://github.com/rh-ai-kickstart/llama-stack-observability
+sources:
+  - https://github.com/rh-ai-kickstart/llama-stack-observability
+maintainers:
+  - name: RHOAI BU Team

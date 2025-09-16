@@ -1,0 +1,164 @@
+{{- if .Values.rbac.create }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "llama-stack-operator.managerClusterRoleName" . }}
+  labels:
+    {{- include "llama-stack-operator.labels" . | nindent 4 }}
+  annotations:
+    {{- include "llama-stack-operator.annotations" . | nindent 4 }}
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  verbs:
+  - create
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - persistentvolumeclaims
+  verbs:
+  - create
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - services
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - llamastack.io
+  resources:
+  - llamastackdistributions
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - llamastack.io
+  resources:
+  - llamastackdistributions/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - llamastack.io
+  resources:
+  - llamastackdistributions/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - networking.k8s.io
+  resources:
+  - networkpolicies
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "llama-stack-operator.fullname" . }}-metrics-reader
+  labels:
+    {{- include "llama-stack-operator.labels" . | nindent 4 }}
+  annotations:
+    {{- include "llama-stack-operator.annotations" . | nindent 4 }}
+rules:
+- nonResourceURLs:
+  - /metrics
+  verbs:
+  - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "llama-stack-operator.fullname" . }}-proxy-role
+  labels:
+    {{- include "llama-stack-operator.labels" . | nindent 4 }}
+  annotations:
+    {{- include "llama-stack-operator.annotations" . | nindent 4 }}
+rules:
+- apiGroups:
+  - authentication.k8s.io
+  resources:
+  - tokenreviews
+  verbs:
+  - create
+- apiGroups:
+  - authorization.k8s.io
+  resources:
+  - subjectaccessreviews
+  verbs:
+  - create
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "llama-stack-operator.managerClusterRoleBindingName" . }}
+  labels:
+    {{- include "llama-stack-operator.labels" . | nindent 4 }}
+  annotations:
+    {{- include "llama-stack-operator.annotations" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "llama-stack-operator.managerClusterRoleName" . }}
+subjects:
+- kind: ServiceAccount
+  name: {{ include "llama-stack-operator.serviceAccountName" . }}
+  namespace: {{ include "llama-stack-operator.namespace" . }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "llama-stack-operator.fullname" . }}-proxy-rolebinding
+  labels:
+    {{- include "llama-stack-operator.labels" . | nindent 4 }}
+  annotations:
+    {{- include "llama-stack-operator.annotations" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "llama-stack-operator.fullname" . }}-proxy-role
+subjects:
+- kind: ServiceAccount
+  name: {{ include "llama-stack-operator.serviceAccountName" . }}
+  namespace: {{ include "llama-stack-operator.namespace" . }}
+{{- end }}

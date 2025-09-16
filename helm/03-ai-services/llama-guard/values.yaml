@@ -1,0 +1,195 @@
+# Default values for llama-guard
+replicaCount: 1
+
+image:
+  repository: 'quay.io/modh/vllm@sha256:'
+  tag: "4f550996130e7d16cacb24ca9a2865e7cf51eddaab014ceaf31a1ea6ef86d4ec"
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext:
+  runAsNonRoot: false
+  fsGroup: 2000
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+    - ALL
+
+# Model configuration
+model:
+  name: "meta-llama/Llama-Guard-3-1B"
+  maxModelLen: 24000
+  # gpuMemoryUtilization: 0.40
+  # quantization: ""  # Options: awq, gptq, squeezellm, fp8
+  # dtype: "half"     # Options: auto, half, float16, bfloat16, float32
+  
+# vLLM server configuration
+vllm:
+  host: "0.0.0.0"
+  port: 8080
+  apiKey: ""  # Optional API key
+  enableLogging: true
+  logLevel: "info"
+  maxLogLen: 2048
+  disableLogStats: false
+  disableLogRequests: false
+
+# Data connection for model storage
+dataConnection:
+  enabled: true
+  name: "my-storage"
+  accessKeyId: ""
+  secretAccessKey: ""
+  endpoint: ""
+  bucket: "models"
+  region: "us-east-1"
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+  annotations: {}
+
+route:
+  enabled: true
+  annotations: {}
+  host: ""
+  tls:
+    enabled: true
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: llama-guard.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+# Resource requirements (adjust based on GPU availability)
+resources:
+  limits:
+    nvidia.com/gpu: 1
+    memory: 10Gi
+    cpu: 8
+  requests:
+    nvidia.com/gpu: 1
+    memory: 8Gi
+    cpu: 1
+
+livenessProbe:
+  httpGet:
+    path: /health
+    port: http
+  initialDelaySeconds: 120
+  periodSeconds: 30
+  timeoutSeconds: 10
+  failureThreshold: 3
+
+readinessProbe:
+  tcpSocket:
+    port: 8080
+  initialDelaySeconds: 60
+  periodSeconds: 10
+  timeoutSeconds: 1
+  failureThreshold: 3
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 80
+
+nodeSelector:
+  nvidia.com/gpu.present: "true"
+
+tolerations:
+  - effect: NoSchedule
+    operator: Exists
+
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: nvidia.com/gpu.present
+          operator: In
+          values:
+          - "true"
+
+# Persistent Volume for model cache
+persistence:
+  enabled: true
+  storageClass: ""
+  accessMode: ReadWriteOnce
+  size: 10Gi
+  mountPath: /tmp/hf_home
+
+# Environment variables
+env:
+  CUDA_VISIBLE_DEVICES: "0"
+  TRANSFORMERS_CACHE: "/tmp/hf_home"
+  HF_HOME: "/tmp/hf_home"
+
+# InferenceService configuration
+inferenceService:
+  displayName: "Llama-Guard-3-1B"
+  maxReplicas: 1
+  minReplicas: 1
+  modelFormat: "vLLM"
+  modelName: ""
+  runtime: ""  # Will default to chart fullname if not specified
+  storageUri: "oci://quay.io/rh-aiservices-bu/llama-guard-3-1b-modelcar:2.0.0"
+
+# Serving Runtime configuration
+servingRuntime:
+  enabled: true  # Set to true to create a ServingRuntime resource
+  image: "quay.io/modh/vllm@sha256:4f550996130e7d16cacb24ca9a2865e7cf51eddaab014ceaf31a1ea6ef86d4ec"
+  tensorParallelSize: 1
+  shmSizeLimit: "2Gi"
+  memBufferBytes: 134217728  # 128MB
+  modelLoadingTimeoutMillis: 90000  # 90 seconds
+  distributedExecutorBackend: "mp"
+  
+  # OpenTelemetry tracing configuration
+  tracing:
+    enabled: true
+    otlpTracesEndpoint: "grpc://otel-collector-collector.observability-hub.svc.cluster.local:4317"
+    collectDetailedTraces: "all"
+    serviceName: "vllm-llama-guard"
+    insecure: true
+
+# Network Policies
+networkPolicy:
+  enabled: true
+  ingress:
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            name: openshift-ingress
+      ports:
+      - protocol: TCP
+        port: 8080
+    - from:
+      - podSelector:
+          matchLabels:
+            app.kubernetes.io/name: llama-stack
+      ports:
+      - protocol: TCP
+        port: 8080

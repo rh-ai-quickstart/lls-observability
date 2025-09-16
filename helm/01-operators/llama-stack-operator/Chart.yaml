@@ -1,0 +1,26 @@
+apiVersion: v2
+name: llama-stack-operator
+description: A Helm chart for Llama Stack Operator on Kubernetes
+type: application
+version: 1.0.0
+appVersion: "v0.3.0"
+keywords:
+  - llama
+  - stack
+  - operator
+  - ai
+  - inference
+  - kubernetes
+home: https://github.com/meta-llama/llama-stack
+sources:
+  - https://github.com/meta-llama/llama-stack
+  - https://github.com/meta-llama/llama-stack-apps
+maintainers:
+  - name: AI Engineering Team
+    email: ai-engineering@company.com
+annotations:
+  category: AI/ML
+  openshift.io/display-name: "Llama Stack Operator"
+  openshift.io/provider-display-name: "AI Engineering Team"
+  openshift.io/documentation-url: "https://docs.company.com/llama-stack-operator"
+  openshift.io/support-url: "https://support.company.com"

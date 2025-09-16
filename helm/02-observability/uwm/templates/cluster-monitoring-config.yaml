@@ -1,0 +1,27 @@
+{{- if .Values.clusterMonitoring.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.clusterMonitoring.configMapName }}
+  namespace: {{ .Values.clusterMonitoring.namespace }}
+  labels:
+    {{- include "uwm.labels" . | nindent 4 }}
+    {{- with .Values.clusterMonitoring.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.clusterMonitoring.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+data:
+  config.yaml: |
+    enableUserWorkload: {{ .Values.clusterMonitoring.enableUserWorkload }}
+    {{- if .Values.clusterMonitoring.prometheusK8s }}
+    prometheusK8s:
+      {{- toYaml .Values.clusterMonitoring.prometheusK8s | nindent 6 }}
+    {{- end }}
+    {{- if .Values.clusterMonitoring.alertmanagerMain }}
+    alertmanagerMain:
+      {{- toYaml .Values.clusterMonitoring.alertmanagerMain | nindent 6 }}
+    {{- end }}
+{{- end }}

@@ -1,0 +1,65 @@
+{{- if .Values.llamaStackDistribution.create }}
+apiVersion: llamastack.io/v1alpha1
+kind: LlamaStackDistribution
+metadata:
+  name: {{ include "llama-stack-instance.distributionName" . }}
+  namespace: {{ include "llama-stack-instance.namespace" . }}
+  labels:
+    {{- include "llama-stack-instance.instanceLabels" . | nindent 4 }}
+  {{- with .Values.instanceAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  replicas: {{ .Values.llamaStackDistribution.replicas }}
+  server:
+    containerSpec:
+      env:
+        - name: OTEL_SERVICE_NAME
+          value: llamastack
+        - name: TELEMETRY_SINKS
+          value: 'console, sqlite, otel_trace, otel_metric'
+        - name: OTEL_TRACE_ENDPOINT
+          value: http://otel-collector-collector.observability-hub.svc.cluster.local:4318/v1/traces
+        - name: OTEL_METRIC_ENDPOINT
+          value: http://otel-collector-collector.observability-hub.svc.cluster.local:4318/v1/metrics
+        - name: INFERENCE_MODEL
+          value: llama3-2-3b
+        - name: SAFETY_MODEL
+          value: meta-llama/Llama-Guard-3-1B
+        - name: VLLM_MAX_TOKENS
+          value: "60000"
+        - name: VLLM_URL
+          value: "http://llama3-2-3b-predictor:8080/v1"
+        - name: SAFETY_URL
+          value: "http://llama-guard-3-1b-predictor:8080/v1"
+        - name: VLLM_API_TOKEN
+          value: "fake"
+        - name: VLLM_TLS_VERIFY
+          value: "false"
+        - name: VLLM_SAFETY_MAX_TOKENS
+          value: "20000"
+        - name: MILVUS_DB_PATH
+          value: "~/.llama/distributions/remote-vllm/milvus_store.db"
+        - name: SQLITE_STORE_DIR
+          value: "~/.llama/distributions/remote-vllm"
+        - name: SQLITE_DB_PATH
+          value: "~/.llama/distributions/remote-vllm/trace_store.db"
+        {{- range $key, $value := .Values.llamaStackDistribution.server.containerSpec.env.customVariables }}
+        - name: {{ $key }}
+          value: {{ $value | quote }}
+        {{- end }}
+      name: {{ .Values.llamaStackDistribution.server.containerSpec.name }}
+      port: {{ .Values.llamaStackDistribution.server.containerSpec.port }}
+      {{- if .Values.llamaStackDistribution.server.containerSpec.resources }}
+      resources:
+        {{- toYaml .Values.llamaStackDistribution.server.containerSpec.resources | nindent 8 }}
+      {{- end }}
+    distribution:
+      name: {{ .Values.llamaStackDistribution.server.distribution.name }}
+      {{- if .Values.llamaStackDistribution.server.distribution.image }}
+      image: {{ .Values.llamaStackDistribution.server.distribution.image }}
+      {{- end }}
+    userConfig:
+      configMapName: llama-stack-config
+{{- end }}

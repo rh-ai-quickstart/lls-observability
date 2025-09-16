@@ -1,0 +1,60 @@
+🦙 Llama Stack Operator has been deployed successfully!
+
+Release Name: {{ .Release.Name }}
+Namespace: {{ include "llama-stack-operator.namespace" . }}
+
+📋 Deployment Details:
+- Operator Version: {{ .Chart.AppVersion }}
+- Image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+- Replicas: {{ .Values.replicaCount }}
+
+🔧 Components Deployed:
+{{- if .Values.namespace.create }}
+- ✓ Namespace: {{ include "llama-stack-operator.namespace" . }}
+{{- end }}
+{{- if .Values.crd.create }}
+- ✓ CRD: LlamaStackDistribution
+{{- end }}
+{{- if .Values.serviceAccount.create }}
+- ✓ ServiceAccount: {{ include "llama-stack-operator.serviceAccountName" . }}
+{{- end }}
+{{- if .Values.rbac.create }}
+- ✓ RBAC: Roles, ClusterRoles, and Bindings
+{{- end }}
+- ✓ Deployment: {{ include "llama-stack-operator.deploymentName" . }}
+- ✓ Service: {{ include "llama-stack-operator.metricsServiceName" . }}
+- ✓ ConfigMap: {{ include "llama-stack-operator.fullname" . }}-manager-config
+
+📊 Monitoring:
+To check the operator status:
+  kubectl get pods -n {{ include "llama-stack-operator.namespace" . }} -l control-plane=controller-manager
+
+To view operator logs:
+  kubectl logs -n {{ include "llama-stack-operator.namespace" . }} -l control-plane=controller-manager -f
+
+📖 Next Steps:
+1. Verify the operator is running:
+   kubectl get deployment {{ include "llama-stack-operator.deploymentName" . }} -n {{ include "llama-stack-operator.namespace" . }}
+
+2. Create a LlamaStackDistribution custom resource:
+   kubectl apply -f - <<EOF
+   apiVersion: llamastack.io/v1alpha1
+   kind: LlamaStackDistribution
+   metadata:
+     name: my-llama-stack
+     namespace: default
+   spec:
+     replicas: 1
+     server:
+       containerSpec:
+         image: meta-llama/llama-stack:latest
+   EOF
+
+3. Check the status of your LlamaStackDistribution:
+   kubectl get llamastackdistributions -A
+
+🔗 Resources:
+- GitHub: https://github.com/meta-llama/llama-stack
+- Documentation: https://docs.company.com/llama-stack-operator
+
+Happy AI building! 🚀

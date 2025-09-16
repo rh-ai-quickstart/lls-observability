@@ -1,0 +1,186 @@
+# Default values for llama-stack-instance
+
+# Global naming overrides
+nameOverride: ""
+fullnameOverride: ""
+
+# Namespace configuration
+namespace:
+  create: false
+  name: ""
+  annotations: {}
+  labels: {}
+
+# LlamaStackDistribution configuration
+llamaStackDistribution:
+  # Whether to create the LlamaStackDistribution resource
+  create: true
+  
+  # Name of the LlamaStackDistribution (defaults to chart fullname)
+  name: ""
+  
+  # Number of replicas for the distribution
+  replicas: 1
+  
+  # Server configuration
+  server:
+    # Container specification
+    containerSpec:
+      # Container name
+      name: llama-stack
+      
+      # Port configuration
+      port: 8321
+      
+      # Environment variables
+      env:
+        otelServiceName: llamastack
+        customVariables: {}
+        # Example of additional env vars:
+        # CUSTOM_VAR: "value"
+      
+      # Container args (optional)
+      args: []
+      
+      # Container command (optional)
+      command: []
+      
+      # Resource requirements (optional)
+      resources: {}
+        # limits:
+        #   cpu: 2000m
+        #   memory: 4Gi
+        # requests:
+        #   cpu: 1000m
+        #   memory: 2Gi
+    
+    # Distribution configuration
+    distribution:
+      # Distribution name that maps to supported distributions
+      # name: rh-dev
+      
+      # Alternative: direct container image reference (mutually exclusive with name)
+      #image: "quay.io/eformat/distribution-remote-vllm:0.2.15"
+      image: "quay.io/rhoai-genaiops/llama-stack-vllm-milvus:0.2.11"
+    
+    # User configuration
+    userConfig:
+      # ConfigMap name for user configuration
+      # If empty, defaults to chart fullname + "-config"
+      configMapName: ""
+      
+      # ConfigMap namespace (optional)
+      configMapNamespace: ""
+    
+    # Pod overrides (optional)
+    podOverrides:
+      # Custom service account name
+      serviceAccountName: ""
+      
+      # Volume mounts
+      volumeMounts: []
+      # Example:
+      # - name: custom-volume
+      #   mountPath: /custom/path
+      
+      # Volumes
+      volumes: []
+      # Example:
+      # - name: custom-volume
+      #   configMap:
+      #     name: custom-config
+
+# Operator configuration
+operator:
+  # Whether to install the operator dependency
+  install: false
+  
+  # Namespace where the operator is installed
+  namespace: llama-stack-k8s-operator-system
+
+# Global labels to apply to all resources
+commonLabels: {}
+
+# Global annotations to apply to all resources
+commonAnnotations: {}
+
+# Additional annotations for the LlamaStackDistribution resource
+instanceAnnotations: {}
+
+# Additional labels for the LlamaStackDistribution resource
+instanceLabels: {}
+
+# ConfigMap configuration
+configMap:
+  enabled: true
+
+# Llama Stack storage configuration  
+llamaStack:
+  storage:
+    size: 5Gi
+    storageClass: ""
+
+# MCP servers configuration (used in ConfigMap template)
+mcpServers:
+  - name: "weather"
+    uri: "http://mcp-weather.llama-serve.svc.cluster.local:80"
+  - name: "hr-api-tools"  
+    uri: "http://hr-enterprise-api.llama-serve.svc.cluster.local:80"
+  - name: "openshift"
+    uri: "http://ocp-mcp-server.llama-serve.svc.cluster.local:8000"
+# HR-API should support MCP protocol with /sse endpoint
+
+# Vector Database configuration - uses inline Milvus only
+
+# MaaS provider configuration (optional)
+maas:
+  enabled: false
+  apiToken: "your_token"  # Replace with actual token
+  url: "https://litellm-litemaas.apps.prod.rhoai.rh-aiservices-bu.com/v1"
+  maxTokens: 200000
+  tlsVerify: false
+  modelId: "Llama-4-Scout-17B-16E-W4A16"
+
+# OpenTelemetry Collector configuration
+otelCollector:
+  enabled: true
+  name: "llamastack-otelsidecar"
+  mode: "sidecar"
+  replicas: 1
+  
+  # Observability settings
+  observability:
+    metrics:
+      address: "0.0.0.0:8888"
+  
+  # OTLP HTTP exporter configuration
+  exporter:
+    endpoint: "http://otel-collector-collector.observability-hub.svc.cluster.local:4318"
+    tls:
+      insecure: true
+  
+  # Resource configuration
+  resources: {}
+  
+  # Management and upgrade strategy
+  managementState: "managed"
+  upgradeStrategy: "automatic"
+  deploymentUpdateStrategy: {}
+  daemonSetUpdateStrategy: {}
+  
+  # Target Allocator configuration
+  targetAllocator:
+    allocationStrategy: "consistent-hashing"
+    filterStrategy: "relabel-config"
+    scrapeInterval: "30s"
+    observability:
+      metrics: {}
+    resources: {}
+  
+  # Network configuration
+  ipFamilyPolicy: "SingleStack"
+  podDnsConfig: {}
+  
+  # Ingress configuration
+  ingress:
+    route: {}
