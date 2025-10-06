@@ -26,15 +26,15 @@ distributed tracing to meet financial compliance and risk needs.
 
 ## Detailed description
 
-This quickstart features a **Financial Services Industry (FSI) compliance demo** that demonstrates auditability and traceability for AI-powered financial applications.
+This quickstart features a **Financial Services Industry (FSI) compliance demo**
+that demonstrates auditability and traceability for AI-powered financial
+applications.
 
 The demo uses distributed tracing to capture every step of an AI-driven loan
 decision process, creating a complete audit trail for regulatory compliance and
 risk management.
 
-
 ![FSI Tracing Flow](docs/images/traces4.png)
-
 
 As AI workloads become more complex, organizations need robust telemetry and
 observability of Large Language Model (LLM) infrastructure. This quickstart
@@ -47,7 +47,6 @@ demonstrates those needs by providing:
 This repository provides helm charts for both the monitoring infrastructure and
 AI service deployments needed to run Llama Stack reliably in OpenShift
 environments.
-
 
 ### Architecture
 
@@ -106,28 +105,35 @@ These traces provide insights into:
 
 ## Requirements
 
-### Minimum Hardware Requirements
+### Minimum hardware requirements
 
 - **CPU**: 8+ cores recommended for full stack deployment
 - **Memory**: 16GB+ RAM for monitoring stack, additional memory based on AI workload requirements
 - **Storage**: 100GB+ for observability data retention
 - **GPU**: NVIDIA GPU required for AI model inference (varies by model size)
 
-### Required Software
+### Minimum software requirements
 
 - **OpenShift 4.12+** or **Kubernetes 1.24+**
 - **OpenShift AI 2.19 onwards**
 - **Helm 3.8+** for chart deployment
 - **oc CLI** or **kubectl** for cluster management
 
-### Required Permissions
+### Required user permissions
 
 - **Cluster Admin** - Required for operator installation and observability stack setup
 - **GPU Access** - Required for AI workload deployment
 
-## Installation
+## Deploy
+
+```bash
+# step 0 - git clone
+https://github.com/rh-ai-quickstart/lls-observability.git && \ 
+cd lls-observability
+```
 
 ### Quick Start - Automated Installation
+
 
 **Option 1: Complete Stack (Recommended)**
 ```bash
@@ -271,3 +277,10 @@ make clean
 ### Community
 - [Red Hat AI Quickstarts](https://github.com/rh-ai-quickstart)
 - [OpenShift AI Documentation](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_cloud_service)
+
+
+## Tags
+
+* **Industry:** Financial Services
+* **Use case:** Compliance 
+* **Product:**  OpenShift AI 
