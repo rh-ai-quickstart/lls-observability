@@ -34,7 +34,7 @@ This quickstart includes a **Financial Services Industry (FSI) compliance demo**
 
 The demo shows how distributed tracing captures every step of an AI-driven loan decision process:
 
-![FSI Tracing Flow](assets/images/traces4.png)
+![FSI Tracing Flow](docs/images/traces4.png)
 
 This provides complete audit trails for regulatory compliance and risk management in financial AI systems.
 
@@ -42,7 +42,7 @@ This provides complete audit trails for regulatory compliance and risk managemen
 
 The proposed observability & telemetry architecture:
 
-![observability architecture diagram](./assets/images/architecture.png)
+![observability architecture diagram](./docs/images/architecture.png)
 
 This architecture demonstrates the complete observability ecosystem, from AI workload telemetry collection through distributed tracing to comprehensive monitoring dashboards.
 
@@ -80,11 +80,11 @@ The telemetry and observability stack provides comprehensive visibility into AI 
 
 #### Distributed Tracing Examples
 
-![Llama Stack Request Tracing](assets/images/traces1.png)
+![Llama Stack Request Tracing](docs/images/traces1.png)
 
 **End-to-End Request Tracing**: Complete visibility into AI inference request flows through the Llama Stack infrastructure.
 
-![Detailed Service Interaction Tracing](assets/images/traces2.png)
+![Detailed Service Interaction Tracing](docs/images/traces2.png)
 
 **Create Agent from LlamaStack Tracing**: Detailed trace view showing complex interactions between different services in the AI stack.
 
