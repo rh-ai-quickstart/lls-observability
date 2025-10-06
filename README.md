@@ -1,10 +1,16 @@
-# Llama Stack Telemetry & Observability
+# Audit AI apps to meet compliance goals in Financial Services
 
-Observability & telemetry quickstart for both Llama-Stack and OpenShift AI.
 
-This repository provides helm charts for deploying AI services with telemetry and observability on Llama-Stack, OpenShift and OpenShift AI.
+Monitor AI-driven loan decisions with full observability, audity trails, and
+distributed tracing to meet financial compliance and risk needs.
 
-Jump straight to [installation](#installation) to get started quickly.
+<!-- # Llama Stack Telemetry & Observability -->
+
+<!-- Observability & telemetry quickstart for both Llama-Stack and OpenShift AI. -->
+
+<!-- This repository provides helm charts for deploying AI services with telemetry and observability on Llama-Stack, OpenShift and OpenShift AI. -->
+
+<!-- Jump straight to [installation](#installation) to get started quickly. -->
 
 ## Table of Contents
 
@@ -20,23 +26,28 @@ Jump straight to [installation](#installation) to get started quickly.
 
 ## Detailed description
 
-This telemetry and observability quickstart addresses the critical needs for Large Language Model (LLM) infrastructure. As AI workloads become more complex, organizations need:
+This quickstart features a **Financial Services Industry (FSI) compliance demo** that demonstrates auditability and traceability for AI-powered financial applications.
 
-- **AI observability** into model performance, resource utilization, and distributed tracing
-- **Standardized deployment patterns** for consistent, scalable AI service delivery
-- **Enterprise-grade monitoring** with OpenShift-native observability tools
+The demo uses distributed tracing to capture every step of an AI-driven loan
+decision process, creating a complete audit trail for regulatory compliance and
+risk management.
 
-This repository provides helm charts for both the monitoring infrastructure and AI service deployments needed to run Llama Stack reliably in production environments.
-
-## FSI Use Case: Financial AI Audit System
-
-This quickstart includes a **Financial Services Industry (FSI) compliance demo** that demonstrates auditability and traceability for AI-powered financial applications.
-
-The demo shows how distributed tracing captures every step of an AI-driven loan decision process:
 
 ![FSI Tracing Flow](docs/images/traces4.png)
 
-This provides complete audit trails for regulatory compliance and risk management in financial AI systems.
+
+As AI workloads become more complex, organizations need robust telemetry and
+observability of Large Language Model (LLM) infrastructure. This quickstart
+demonstrates those needs by providing: 
+
+- **AI observability** for model performance, resource utilization, and distributed tracing
+- **Standardized deployment patterns** for consistent, scalable AI service delivery
+- **Enterprise-grade monitoring** using OpenShift-native observability tools
+
+This repository provides helm charts for both the monitoring infrastructure and
+AI service deployments needed to run Llama Stack reliably in OpenShift
+environments.
+
 
 ### Architecture
 
