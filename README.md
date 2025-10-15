@@ -1,10 +1,14 @@
-# Llama Stack Telemetry & Observability
+# Audit AI apps to meet compliance goals in Financial Services
 
-Observability & telemetry quickstart for both Llama-Stack and OpenShift AI.
+Deploy a financial audit system with insights into the performance, cost, and usage of your large language models in real time.
 
-This repository provides helm charts for deploying AI services with telemetry and observability on Llama-Stack, OpenShift and OpenShift AI.
+<!-- # Llama Stack Telemetry & Observability -->
 
-Jump straight to [installation](#installation) to get started quickly.
+<!-- Observability & telemetry quickstart for both Llama-Stack and OpenShift AI. -->
+
+<!-- This repository provides helm charts for deploying AI services with telemetry and observability on Llama-Stack, OpenShift and OpenShift AI. -->
+
+<!-- Jump straight to [installation](#installation) to get started quickly. -->
 
 ## Table of Contents
 
@@ -20,29 +24,32 @@ Jump straight to [installation](#installation) to get started quickly.
 
 ## Detailed description
 
-This telemetry and observability quickstart addresses the critical needs for Large Language Model (LLM) infrastructure. As AI workloads become more complex, organizations need:
+This quickstart features a **Financial Services Industry (FSI) compliance demo**
+that demonstrates auditability and traceability for AI-powered financial
+applications.
 
-- **AI observability** into model performance, resource utilization, and distributed tracing
+<!-- The demo uses distributed tracing to capture every step of an AI-driven loan
+decision process, creating a complete audit trail for regulatory compliance and
+risk management. -->
+
+![FSI Tracing Flow](docs/images/traces4.png)
+
+As AI workloads become more complex, organizations need robust telemetry and
+observability of Large Language Model (LLM) infrastructure. This quickstart
+demonstrates those needs by providing: 
+
+- **AI observability** for model performance, resource utilization, and distributed tracing
 - **Standardized deployment patterns** for consistent, scalable AI service delivery
-- **Enterprise-grade monitoring** with OpenShift-native observability tools
+- **Enterprise-grade monitoring** using OpenShift-native observability tools
 
-This repository provides helm charts for both the monitoring infrastructure and AI service deployments needed to run Llama Stack reliably in production environments.
-
-## FSI Use Case: Financial AI Audit System
-
-This quickstart includes a **Financial Services Industry (FSI) compliance demo** that demonstrates auditability and traceability for AI-powered financial applications.
-
-The demo shows how distributed tracing captures every step of an AI-driven loan decision process:
-
-![FSI Tracing Flow](assets/images/traces4.png)
-
-This provides complete audit trails for regulatory compliance and risk management in financial AI systems.
+This repository provides helm charts for both the monitoring infrastructure and
+AI service deployments needed to run Llama Stack reliably in OpenShift AI. 
 
 ### Architecture
 
 The proposed observability & telemetry architecture:
 
-![observability architecture diagram](./assets/images/architecture.png)
+![observability architecture diagram](./docs/images/architecture.png)
 
 This architecture demonstrates the complete observability ecosystem, from AI workload telemetry collection through distributed tracing to comprehensive monitoring dashboards.
 
@@ -80,11 +87,11 @@ The telemetry and observability stack provides comprehensive visibility into AI 
 
 #### Distributed Tracing Examples
 
-![Llama Stack Request Tracing](assets/images/traces1.png)
+![Llama Stack Request Tracing](docs/images/traces1.png)
 
 **End-to-End Request Tracing**: Complete visibility into AI inference request flows through the Llama Stack infrastructure.
 
-![Detailed Service Interaction Tracing](assets/images/traces2.png)
+![Detailed Service Interaction Tracing](docs/images/traces2.png)
 
 **Create Agent from LlamaStack Tracing**: Detailed trace view showing complex interactions between different services in the AI stack.
 
@@ -95,28 +102,35 @@ These traces provide insights into:
 
 ## Requirements
 
-### Minimum Hardware Requirements
+### Minimum hardware requirements
 
 - **CPU**: 8+ cores recommended for full stack deployment
 - **Memory**: 16GB+ RAM for monitoring stack, additional memory based on AI workload requirements
 - **Storage**: 100GB+ for observability data retention
 - **GPU**: NVIDIA GPU required for AI model inference (varies by model size)
 
-### Required Software
+### Minimum software requirements
 
 - **OpenShift 4.12+** or **Kubernetes 1.24+**
 - **OpenShift AI 2.19 onwards**
 - **Helm 3.8+** for chart deployment
 - **oc CLI** or **kubectl** for cluster management
 
-### Required Permissions
+### Required user permissions
 
 - **Cluster Admin** - Required for operator installation and observability stack setup
 - **GPU Access** - Required for AI workload deployment
 
-## Installation
+## Deploy
+
+```bash
+# step 0 - git clone
+https://github.com/rh-ai-quickstart/lls-observability.git && \ 
+cd lls-observability
+```
 
 ### Quick Start - Automated Installation
+
 
 **Option 1: Complete Stack (Recommended)**
 ```bash
@@ -260,3 +274,10 @@ make clean
 ### Community
 - [Red Hat AI Quickstarts](https://github.com/rh-ai-quickstart)
 - [OpenShift AI Documentation](https://docs.redhat.com/en/documentation/red_hat_openshift_ai_cloud_service)
+
+
+## Tags
+
+* **Industry:** Financial Services
+* **Use case:** Compliance 
+* **Product:**  OpenShift AI 
