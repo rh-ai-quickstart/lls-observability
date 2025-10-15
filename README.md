@@ -1,8 +1,6 @@
 # Audit AI apps to meet compliance goals in Financial Services
 
-
-Monitor AI-driven loan decisions with full observability, audity trails, and
-distributed tracing to meet financial compliance and risk needs.
+Deploy a financial audit system with insights into the performance, cost, and usage of your large language models in real time.
 
 <!-- # Llama Stack Telemetry & Observability -->
 
