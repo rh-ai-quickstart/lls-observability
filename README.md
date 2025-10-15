@@ -28,9 +28,9 @@ This quickstart features a **Financial Services Industry (FSI) compliance demo**
 that demonstrates auditability and traceability for AI-powered financial
 applications.
 
-The demo uses distributed tracing to capture every step of an AI-driven loan
+<!-- The demo uses distributed tracing to capture every step of an AI-driven loan
 decision process, creating a complete audit trail for regulatory compliance and
-risk management.
+risk management. -->
 
 ![FSI Tracing Flow](docs/images/traces4.png)
 
@@ -43,8 +43,7 @@ demonstrates those needs by providing:
 - **Enterprise-grade monitoring** using OpenShift-native observability tools
 
 This repository provides helm charts for both the monitoring infrastructure and
-AI service deployments needed to run Llama Stack reliably in OpenShift
-environments.
+AI service deployments needed to run Llama Stack reliably in OpenShift AI. 
 
 ### Architecture
 
