@@ -1,4 +1,4 @@
-# Audit AI apps to meet compliance goals in Financial Services
+# Audit AI apps to meet compliance goals
 
 Deploy a financial audit system with insights into the performance, cost, and usage of your large language models in real time.
 
