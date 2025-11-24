@@ -32,9 +32,6 @@ spec:
             - otlphttp
           receivers:
             - otlp
-      telemetry:
-        metrics:
-          address: '0.0.0.0:8888'
   mode: sidecar
   resources: {}
   podDnsConfig: {}

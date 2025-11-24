@@ -1,3 +1,6 @@
 observability/
 CLAUDE.*
 .claude*
+
+.idea/
+*.iml

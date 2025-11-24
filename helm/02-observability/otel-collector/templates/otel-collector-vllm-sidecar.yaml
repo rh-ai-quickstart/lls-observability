@@ -71,8 +71,5 @@ spec:
             - otlphttp
           receivers:
             - prometheus
-            - otlp
-      telemetry:
-        metrics:
-          address: '0.0.0.0:8888'
+              - otlp
 {{- end }}
