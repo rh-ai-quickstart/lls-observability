@@ -32,6 +32,7 @@ rbac:
     # Name of the ClusterRole for writing traces to Tempo
     name: "tempostack-traces-write"
     rules:
+      # Tempo trace writing permissions
       - apiGroups:
           - 'tempo.grafana.com'
         resources:
@@ -40,6 +41,16 @@ rbac:
           - traces
         verbs:
           - 'create'
+      # k8sattributes processor permissions
+      - apiGroups: [""]
+        resources:
+          - pods
+          - namespaces
+          - nodes
+        verbs:
+          - get
+          - list
+          - watch
 
 # Main OpenTelemetry Collector configuration
 collector:
@@ -130,6 +141,9 @@ collector:
       k8sattributes:
         filter:
           node_from_env_var: KUBE_NODE_NAME
+        extract:
+          metadata:
+            - k8s.namespace.name
       batch:
         send_batch_size: 100
         timeout: 1s

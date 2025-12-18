@@ -51,6 +51,9 @@ spec:
       k8sattributes:
         filter:
           node_from_env_var: KUBE_NODE_NAME
+        extract:
+          metadata:
+            - k8s.namespace.name
       batch:
         send_batch_size: 100
         timeout: 1s
