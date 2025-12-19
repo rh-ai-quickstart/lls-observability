@@ -127,6 +127,9 @@ collector:
     
     # Processors configuration
     processors:
+      k8sattributes:
+        filter:
+          node_from_env_var: KUBE_NODE_NAME
       batch:
         send_batch_size: 100
         timeout: 1s
@@ -153,6 +156,7 @@ collector:
           receivers:
             - otlp
           processors:
+            - k8sattributes
             - batch
             - memory_limiter
           exporters:
