@@ -278,6 +278,6 @@ make clean
 
 ## Tags
 
-* **Industry:** Adopt and Scale AI
+* **Industry:** Adopt and scale AI
 * **Use case:** Compliance 
 * **Product:**  OpenShift AI 
