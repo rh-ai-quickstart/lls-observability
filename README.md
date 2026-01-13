@@ -278,6 +278,6 @@ make clean
 
 ## Tags
 
-* **Industry:** Financial Services
+* **Industry:** Adopt and Scale AI
 * **Use case:** Compliance 
 * **Product:**  OpenShift AI 
