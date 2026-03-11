@@ -13,7 +13,7 @@ HELM_DIR="./helm"
 OBSERVABILITY_NAMESPACE="observability-hub"
 AI_SERVICES_NAMESPACE="llama-serve"
 DEFAULT_NAMESPACE="default"
-
+DEVICE_TYPE="gpu" # Supported values: "gpu" or "xeon"
 # Function to print colored output
 print_status() {
     echo -e "${GREEN}[INFO]${NC} $1"
@@ -226,10 +226,12 @@ install_ai_workloads() {
     
     # Install llama3.2-3b with GPU configuration
     if ! release_exists "llama3-2-3b" "$AI_SERVICES_NAMESPACE"; then
-        print_status "Installing llama3.2-3b with GPU support in $AI_SERVICES_NAMESPACE..."
+        print_status "Installing llama3.2-3b with $DEVICE_TYPE support in $AI_SERVICES_NAMESPACE..."
+
         helm install llama3-2-3b "$HELM_DIR/03-ai-services/llama3.2-3b" -n "$AI_SERVICES_NAMESPACE" \
             --set model.name="meta-llama/Llama-3.2-3B-Instruct" \
-            --set resources.limits."nvidia\.com/gpu"=1
+            --set device="$DEVICE_TYPE" \
+
     else
         print_warning "llama3-2-3b already installed, skipping..."
     fi

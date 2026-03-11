@@ -6,13 +6,22 @@ image:
   gpu:
     # repository: 'quay.io/modh/vllm@sha256:'
     # tag: "0d55419f3d168fd80868a36ac89815dded9e063937a8409b7edf3529771383f3"
-    repository: 'quay.io/rcarrata/vllm-otlp-tracing@sha256'
+    repository: "quay.io/rcarrata/vllm-otlp-tracing@sha256"
     tag: "16f83f5858fcc04bd56ea785126c04af823e8aacbeabb9db963f86d252178189"
     pullPolicy: IfNotPresent
+    chatTemplate: "/app/data/template/tool_chat_template_llama3.2_json.jinja"
+    env:
+      CUDA_VISIBLE_DEVICES: "0"
+      HF_HOME: "/root/.cache/huggingface"
   xeon:
-    repository: 'docker.io/opea/vllm-cpu-ubi'
-    tag: "v0.12.0-ubi9"
+    repository: 'image-registry.openshift-image-registry.svc:5000/llama-serve/vllm-xeon-opentelemetry'
+    tag: "v0.14.1-ubi9"
     pullPolicy: IfNotPresent
+    env:
+      HOME: /tmp
+      XDG_CACHE_HOME: /tmp/.cache
+      VLLM_CACHE_ROOT: /tmp/.cache/vllm
+      VLLM_CPU_KVCACHE_SPACE: "16"
 
 
 imagePullSecrets: []
@@ -107,7 +116,7 @@ resources:
   xeon:
     requests:
       cpu: 16
-      memory: 64Gi
+      memory: 32Gi
     limits:
       cpu: 32
       memory: 64Gi
@@ -136,21 +145,24 @@ autoscaling:
   maxReplicas: 3
   targetCPUUtilizationPercentage: 80
 
+# For Xeon deployments, you can use node selectors, tolerations and affinity to target appropriate nodes,
+# when your cluster has a mix of older and newer CPU generations.
+# Adjust these based on your cluster's labeling and tainting strategy.
 nodeSelector:
   gpu:
     nvidia.com/gpu.present: "true"
-  # xeon:
-  #   intel.com/cpu-gen: "spr
-  #   intel.com/cpu-gen: "emr"
-  #   intel.com/cpu-gen: "gnr"
+# xeon:
+#   intel.com/cpu-gen: "spr
+#   intel.com/cpu-gen: "emr"
+#   intel.com/cpu-gen: "gnr"
 
 tolerations:
   gpu:
   - effect: NoSchedule
     operator: Exists
-  # xeon:
-  # - effect: NoSchedule
-  #   operator: Exists
+# xeon:
+# - effect: NoSchedule
+#   operator: Exists
 
 affinity:
   gpu:
@@ -162,15 +174,15 @@ affinity:
             operator: In
             values:
             - "true"
-  # xeon:
-  #   nodeAffinity:
-  #     requiredDuringSchedulingIgnoredDuringExecution:
-  #       nodeSelectorTerms:
-  #       - matchExpressions:
-  #         # Use taints and labels to target specific CPU generations for optimal performance
-  #         - key: intel.com/cpu-gen
-  #           operator: In
-  #           values: ["spr", "emr", "gnr"]
+# xeon:
+#   nodeAffinity:
+#     requiredDuringSchedulingIgnoredDuringExecution:
+#       nodeSelectorTerms:
+#       - matchExpressions:
+#         # Use taints and labels to target specific CPU generations for optimal performance
+#         - key: intel.com/cpu-gen
+#           operator: In
+#           values: ["spr", "emr", "gnr"]
 
 # Persistent Volume for model cache
 persistence:
@@ -179,12 +191,6 @@ persistence:
   accessMode: ReadWriteOnce
   size: 50Gi
   mountPath: /root/.cache
-
-# Environment variables
-env:
-  CUDA_VISIBLE_DEVICES: "0"
-  TRANSFORMERS_CACHE: "/root/.cache/huggingface"
-  HF_HOME: "/root/.cache/huggingface"
 
 # InferenceService configuration
 inferenceService:
@@ -199,7 +205,6 @@ inferenceService:
 # Serving Runtime configuration
 servingRuntime:
   enabled: true  # Set to true to create a ServingRuntime resource
-  image: "quay.io/modh/vllm@sha256:0d55419f3d168fd80868a36ac89815dded9e063937a8409b7edf3529771383f3"
   tensorParallelSize: 1
   shmSizeLimit: "1Gi"
   memBufferBytes: 134217728  # 128MB

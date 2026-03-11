@@ -1,4 +1,8 @@
 {{- if .Values.servingRuntime.enabled }}
+{{- $device := lower (.Values.device | default "gpu") }}
+{{- $image := index .Values.image $device }}
+{{- $resources := index .Values.resources $device }}
+{{- $chatTemplate := index $image "chatTemplate" | default "/app/data/template/tool_chat_template_llama3.2_json.jinja" }}
 apiVersion: serving.kserve.io/v1alpha1
 kind: ServingRuntime
 metadata:
@@ -18,10 +22,7 @@ spec:
     autoSelect: true
   containers:
   - name: kserve-container
-    {{- $device := lower (.Values.device | default "gpu") }}
-    {{- $image := index .Values.image $device }}
-    {{- $resources := index .Values.resources $device }}
-    image: "{{ (index $image "repository") }}:{{ (index $image "tag") }}"
+    image: {{ (index $image "repository") }}:{{ (index $image "tag") }}
     imagePullPolicy: {{ default "IfNotPresent" (index $image "pullPolicy") }}
     args:
     - --model=/mnt/models
@@ -30,10 +31,10 @@ spec:
     {{- if eq $device "gpu" }}
     - --gpu_memory_utilization={{ .Values.model.gpuMemoryUtilization | default 0.95 }}
     {{- end }}
-    - '--served-model-name=llama3-2-3b'
-    - --chat-template=/app/data/template/tool_chat_template_llama3.2_json.jinja
-    - '--enable-auto-tool-choice'
-    - '--tool-call-parser'
+    - --served-model-name=llama3-2-3b
+    - --chat-template={{ $chatTemplate }}
+    - --enable-auto-tool-choice
+    - --tool-call-parser
     - llama3_json
     {{- if .Values.servingRuntime.tracing.enabled }}
     # tracing-specific flags and options
@@ -51,7 +52,8 @@ spec:
     - name: OTEL_EXPORTER_OTLP_TRACES_INSECURE
       value: {{ .Values.servingRuntime.tracing.insecure | quote }}
     {{- end }}
-    {{- range $key, $value := .Values.env }}
+    {{- $env := index $image "env" | default dict }}
+    {{- range $key, $value := $env }}
     {{- if ne $key "HF_HOME" }}
     - name: {{ $key }}
       value: {{ $value | quote }}
@@ -66,11 +68,25 @@ spec:
     volumeMounts:
     - name: shm
       mountPath: /dev/shm
+    {{- if eq $device "xeon" }}
+    - name: chat-template
+      mountPath: {{ $chatTemplate | quote }}
+      subPath: tool_chat_template_llama3.2_json.jinja
+      readOnly: true
+    {{- end }}
   volumes:
   - name: shm
     emptyDir:
       medium: Memory
       sizeLimit: {{ .Values.servingRuntime.shmSizeLimit | default "1Gi" }}
+  {{- if eq $device "xeon" }}
+  - name: chat-template
+    configMap:
+      name: {{ include "llama3-2-3b.fullname" . }}-chat-template
+      items:
+      - key: tool_chat_template_llama3.2_json.jinja
+        path: tool_chat_template_llama3.2_json.jinja
+  {{- end }}
   {{- if and .Values.nodeSelector (hasKey .Values.nodeSelector $device) }}
   nodeSelector:
     {{- toYaml (index .Values.nodeSelector $device) | nindent 4 }}
