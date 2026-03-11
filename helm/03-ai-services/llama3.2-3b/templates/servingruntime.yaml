@@ -11,7 +11,9 @@ metadata:
     {{- include "llama3-2-3b.labels" . | nindent 4 }}
   annotations:
     opendatahub.io/apiProtocol: REST
+    {{- if eq $device "gpu" }}
     opendatahub.io/accelerator-name: migrated-gpu
+    {{ - end }}
 spec:
   supportedModelFormats:
   - name: vLLM
