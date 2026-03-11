@@ -4,8 +4,7 @@ replicaCount: 1
 device: "gpu"  # Options: gpu, xeon
 image:
   gpu:
-    # repository: 'quay.io/modh/vllm@sha256:'
-    # tag: "0d55419f3d168fd80868a36ac89815dded9e063937a8409b7edf3529771383f3"
+
     repository: "quay.io/rcarrata/vllm-otlp-tracing@sha256"
     tag: "16f83f5858fcc04bd56ea785126c04af823e8aacbeabb9db963f86d252178189"
     pullPolicy: IfNotPresent
@@ -17,11 +16,14 @@ image:
     repository: 'image-registry.openshift-image-registry.svc:5000/llama-serve/vllm-xeon-opentelemetry'
     tag: "v0.14.1-ubi9"
     pullPolicy: IfNotPresent
+    chatTemplate: "/app/data/template/tool_chat_template_llama3.2_json.jinja"
     env:
       HOME: /tmp
       XDG_CACHE_HOME: /tmp/.cache
       VLLM_CACHE_ROOT: /tmp/.cache/vllm
       VLLM_CPU_KVCACHE_SPACE: "16"
+      TRANSFORMERS_CACHE: "/tmp/hf_home"
+      HF_HOME: "/tmp/hf_home"
 
 
 imagePullSecrets: []

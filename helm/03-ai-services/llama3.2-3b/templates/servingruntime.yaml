@@ -2,7 +2,7 @@
 {{- $device := lower (.Values.device | default "gpu") }}
 {{- $image := index .Values.image $device }}
 {{- $resources := index .Values.resources $device }}
-{{- $chatTemplate := index $image "chatTemplate" | default "/app/data/template/tool_chat_template_llama3.2_json.jinja" }}
+{{- $chatTemplate := index $image "chatTemplate" }}
 apiVersion: serving.kserve.io/v1alpha1
 kind: ServingRuntime
 metadata:
