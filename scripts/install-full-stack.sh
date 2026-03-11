@@ -258,7 +258,8 @@ install_ai_workloads() {
     if [ -d "$HELM_DIR/03-ai-services/llama-guard" ]; then
         if ! release_exists "llama-guard" "$AI_SERVICES_NAMESPACE"; then
             print_status "Installing llama-guard in $AI_SERVICES_NAMESPACE..."
-            helm install llama-guard "$HELM_DIR/03-ai-services/llama-guard" -n "$AI_SERVICES_NAMESPACE"
+            helm install llama-guard "$HELM_DIR/03-ai-services/llama-guard" -n "$AI_SERVICES_NAMESPACE" \
+                --set device="$DEVICE_TYPE"
         else
             print_warning "llama-guard already installed, skipping..."
         fi

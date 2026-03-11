@@ -1,4 +1,7 @@
 {{- if .Values.servingRuntime.enabled }}
+{{- $device := lower (.Values.device | default "gpu") }}
+{{- $image := index .Values.image $device }}
+{{- $resources := index .Values.resources $device }}
 apiVersion: serving.kserve.io/v1alpha1
 kind: ServingRuntime
 metadata:
@@ -7,7 +10,9 @@ metadata:
     {{- include "llama-guard.labels" . | nindent 4 }}
   annotations:
     opendatahub.io/apiProtocol: REST
+    {{- if eq $device "gpu" }}
     opendatahub.io/accelerator-name: migrated-gpu
+    {{- end }}
 spec:
   supportedModelFormats:
   - name: vLLM
@@ -18,12 +23,15 @@ spec:
     autoSelect: true
   containers:
   - name: kserve-container
-    image: {{ .Values.servingRuntime.image | default "quay.io/modh/vllm@sha256:4f550996130e7d16cacb24ca9a2865e7cf51eddaab014ceaf31a1ea6ef86d4ec" }}
+    image: {{ (index $image "repository") }}:{{ (index $image "tag") }}
+    imagePullPolicy: {{ default "IfNotPresent" (index $image "pullPolicy") }}
     args:
     - --model=/mnt/models
     - --port=8080
     - --max-model-len={{ .Values.model.maxModelLen | default 8192 }}
+    {{- if eq $device "gpu" }}
     - --gpu_memory_utilization={{ .Values.model.gpuMemoryUtilization | default 0.40 }}
+    {{- end }}
     - '--served-model-name={{ .Values.model.name | default "meta-llama/Llama-Guard-3-1B" }}'
     - --distributed-executor-backend={{ .Values.servingRuntime.distributedExecutorBackend | default "mp" }}
     - --dtype={{ .Values.model.dtype | default "half" }}
@@ -54,7 +62,7 @@ spec:
       name: h2c
       protocol: TCP
     resources:
-      {{- toYaml .Values.resources | nindent 6 }}
+      {{- toYaml $resources | nindent 6 }}
     volumeMounts:
     - name: shm
       mountPath: /dev/shm
@@ -63,17 +71,17 @@ spec:
     emptyDir:
       medium: Memory
       sizeLimit: {{ .Values.servingRuntime.shmSizeLimit | default "2Gi" }}
-  {{- with .Values.nodeSelector }}
+  {{- if and .Values.nodeSelector (hasKey .Values.nodeSelector $device) }}
   nodeSelector:
-    {{- toYaml . | nindent 4 }}
+    {{- toYaml (index .Values.nodeSelector $device) | nindent 4 }}
   {{- end }}
-  {{- with .Values.affinity }}
+  {{- if and .Values.affinity (hasKey .Values.affinity $device) }}
   affinity:
-    {{- toYaml . | nindent 4 }}
+    {{- toYaml (index .Values.affinity $device) | nindent 4 }}
   {{- end }}
-  {{- with .Values.tolerations }}
+  {{- if and .Values.tolerations (hasKey .Values.tolerations $device) }}
   tolerations:
-    {{- toYaml . | nindent 4 }}
+    {{- toYaml (index .Values.tolerations $device) | nindent 4 }}
   {{- end }}
   builtInAdapter:
     serverType: vllm
