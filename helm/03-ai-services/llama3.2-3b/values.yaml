@@ -152,7 +152,7 @@ nodeSelector:
   gpu:
     nvidia.com/gpu.present: "true"
 # xeon:
-#   intel.com/cpu-gen: "spr
+#   intel.com/cpu-gen: "spr"
 #   intel.com/cpu-gen: "emr"
 #   intel.com/cpu-gen: "gnr"
 
