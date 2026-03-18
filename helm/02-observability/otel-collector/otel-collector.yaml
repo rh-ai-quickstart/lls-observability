@@ -39,7 +39,7 @@ spec:
               scrape_interval: 15s
               static_configs:
                 - targets:
-                    - 'llama3-2-3b-predictor.llama-serve.svc.cluster.local:8080'
+                    - 'llama3-2-3b-predictor.llama-serve.svc.cluster.local:80'
       otlp:
         protocols:
           grpc:
@@ -80,4 +80,4 @@ spec:
             - otlphttp/dev
       telemetry:
         metrics:
-          address: 0.0.0.0:8888
+          level: detailed
