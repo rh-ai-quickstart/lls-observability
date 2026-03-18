@@ -2,7 +2,7 @@ apiVersion: build.openshift.io/v1
 kind: BuildConfig
 metadata:
   name: vllm-xeon-opentelemetry
-  namespace: llama-serve
+  namespace: openshift
 spec:
   source:
     dockerfile: |
