@@ -13,7 +13,7 @@ image:
       CUDA_VISIBLE_DEVICES: "0"
       HF_HOME: "/root/.cache/huggingface"
   xeon:
-    repository: 'image-registry.openshift-image-registry.svc:5000/llama-serve/vllm-xeon-opentelemetry'
+    repository: 'image-registry.openshift-image-registry.svc:5000/openshift/vllm-xeon-opentelemetry'
     tag: "v0.14.1-ubi9"
     pullPolicy: IfNotPresent
     chatTemplate: "/app/data/template/tool_chat_template_llama3.2_json.jinja"
@@ -22,9 +22,6 @@ image:
       XDG_CACHE_HOME: /tmp/.cache
       VLLM_CACHE_ROOT: /tmp/.cache/vllm
       VLLM_CPU_KVCACHE_SPACE: "16"
-      TRANSFORMERS_CACHE: "/tmp/hf_home"
-      HF_HOME: "/tmp/hf_home"
-
 
 imagePullSecrets: []
 nameOverride: ""
