@@ -10,10 +10,12 @@ NC='\033[0m' # No Color
 
 # Configuration
 HELM_DIR="./helm"
-OBSERVABILITY_NAMESPACE="observability-hub"
-AI_SERVICES_NAMESPACE="llama-serve"
-DEFAULT_NAMESPACE="default"
-DEVICE_TYPE="gpu" # Supported values: "gpu" or "xeon"
+OBSERVABILITY_NAMESPACE="${OBSERVABILITY_NAMESPACE:-observability-hub}"
+AI_SERVICES_NAMESPACE="${AI_SERVICES_NAMESPACE:-llama-serve}"
+DEFAULT_NAMESPACE="${DEFAULT_NAMESPACE:-default}"
+OPERATOR_RELEASE_NAMESPACE="${OPERATOR_RELEASE_NAMESPACE:-lls-observability}"
+DEVICE="${DEVICE:-gpu}" # Supported values: "gpu" or "xeon"
+
 # Function to print colored output
 print_status() {
     echo -e "${GREEN}[INFO]${NC} $1"
@@ -31,9 +33,18 @@ print_error() {
 create_namespaces() {
     print_status "Creating required namespaces..."
     
+    # Workload namespaces
     oc create namespace $OBSERVABILITY_NAMESPACE --dry-run=client -o yaml | oc apply -f-
     oc create namespace openshift-user-workload-monitoring --dry-run=client -o yaml | oc apply -f-
     oc create namespace $AI_SERVICES_NAMESPACE --dry-run=client -o yaml | oc apply -f-
+    oc create namespace $OPERATOR_RELEASE_NAMESPACE --dry-run=client -o yaml | oc apply -f-
+
+    # Operator namespaces — pre-create so operator charts don't need to manage them
+    for ns in openshift-cluster-observability-operator openshift-grafana-operator \
+              openshift-opentelemetry-operator openshift-tempo-operator \
+              llama-stack-k8s-operator-system; do
+        oc create namespace "$ns" --dry-run=client -o yaml | oc apply -f-
+    done
     
     print_status "Namespaces created successfully"
 }
@@ -42,12 +53,8 @@ create_namespaces() {
 release_exists() {
     local release_name=$1
     local namespace=${2:-$DEFAULT_NAMESPACE}
-    
-    if [ "$namespace" = "$DEFAULT_NAMESPACE" ]; then
-        helm list -q | grep -q "^${release_name}$"
-    else
-        helm list -q -n "$namespace" | grep -q "^${release_name}$"
-    fi
+
+    helm list -q -n "$namespace" | grep -q "^${release_name}$"
 }
 
 # Function to install charts in a directory
@@ -62,9 +69,9 @@ install_charts_in_directory() {
     fi
     
     print_status "Installing charts from $dir..."
-    
+
     local pids=()
-    
+
     for chart_dir in "$HELM_DIR/$dir"/*; do
         if [ -d "$chart_dir" ] && [ -f "$chart_dir/Chart.yaml" ]; then
             chart_name=$(basename "$chart_dir")
@@ -76,22 +83,20 @@ install_charts_in_directory() {
             fi
             
             print_status "Installing $chart_name..."
+
+            # For operator charts, skip namespace creation (pre-created in create_namespaces)
+            local helm_extra_args=()
+            if [ "$dir" = "01-operators" ]; then
+                helm_extra_args+=(--set namespace.create=false)
+            fi
             
             if [ "$parallel" = "true" ]; then
                 # Install in background for parallel execution
-                if [ "$namespace" = "$DEFAULT_NAMESPACE" ]; then
-                    helm install "$chart_name" "$chart_dir" &
-                else
-                    helm install "$chart_name" "$chart_dir" -n "$namespace" &
-                fi
+                helm install "$chart_name" "$chart_dir" -n "$namespace" "${helm_extra_args[@]}" &
                 pids+=($!)
             else
                 # Install sequentially
-                if [ "$namespace" = "$DEFAULT_NAMESPACE" ]; then
-                    helm install "$chart_name" "$chart_dir"
-                else
-                    helm install "$chart_name" "$chart_dir" -n "$namespace"
-                fi
+                helm install "$chart_name" "$chart_dir" -n "$namespace" "${helm_extra_args[@]}"
             fi
         fi
     done
@@ -224,14 +229,12 @@ install_ai_workloads() {
     # Using inline Milvus - no external deployment needed
     print_status "Using inline Milvus (configured within llama-stack-instance)..."
     
-    # Install llama3.2-3b with GPU configuration
+    # Install llama3.2-3b with GPU or Xeon configuration
     if ! release_exists "llama3-2-3b" "$AI_SERVICES_NAMESPACE"; then
-        print_status "Installing llama3.2-3b with $DEVICE_TYPE support in $AI_SERVICES_NAMESPACE..."
-
+        print_status "Installing llama3.2-3b with GPU or Xeon support in $AI_SERVICES_NAMESPACE..."
         helm install llama3-2-3b "$HELM_DIR/03-ai-services/llama3.2-3b" -n "$AI_SERVICES_NAMESPACE" \
             --set model.name="meta-llama/Llama-3.2-3B-Instruct" \
-            --set device="$DEVICE_TYPE" \
-
+            --set device="$DEVICE"
     else
         print_warning "llama3-2-3b already installed, skipping..."
     fi
@@ -248,8 +251,7 @@ install_ai_workloads() {
     # Install playground
     if ! release_exists "llama-stack-playground" "$AI_SERVICES_NAMESPACE"; then
         print_status "Installing llama-stack-playground in $AI_SERVICES_NAMESPACE..."
-        helm install llama-stack-playground "$HELM_DIR/03-ai-services/llama-stack-playground" -n "$AI_SERVICES_NAMESPACE" \
-            --set playground.llamaStackUrl="http://llama-stack-instance.llama-serve.svc.cluster.local:80"
+        helm install llama-stack-playground "$HELM_DIR/03-ai-services/llama-stack-playground" -n "$AI_SERVICES_NAMESPACE"
     else
         print_warning "llama-stack-playground already installed, skipping..."
     fi
@@ -259,7 +261,8 @@ install_ai_workloads() {
         if ! release_exists "llama-guard" "$AI_SERVICES_NAMESPACE"; then
             print_status "Installing llama-guard in $AI_SERVICES_NAMESPACE..."
             helm install llama-guard "$HELM_DIR/03-ai-services/llama-guard" -n "$AI_SERVICES_NAMESPACE" \
-                --set device="$DEVICE_TYPE"
+                --set device="$DEVICE"
+
         else
             print_warning "llama-guard already installed, skipping..."
         fi
@@ -280,7 +283,9 @@ main() {
     fi
     
     print_status "Starting full stack installation..."
-    
+    print_status "Using device type: $DEVICE"
+    echo ""
+
     # Phase 1: Create namespaces
     print_status "Phase 1: Creating namespaces"
     create_namespaces
@@ -288,7 +293,7 @@ main() {
     
     # Phase 2: Install operators
     print_status "Phase 2: Installing operators"
-    install_charts_in_directory "01-operators" "$DEFAULT_NAMESPACE" "true"
+    install_charts_in_directory "01-operators" "$OPERATOR_RELEASE_NAMESPACE" "true"
     echo ""
     
     # Phase 3: Wait for operators
