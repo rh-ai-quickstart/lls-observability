@@ -100,7 +100,7 @@ affinity: {}
 # Playground configuration
 playground:
   # Llama Stack backend URL
-  llamaStackUrl: "http://llama-stack"
+  llamaStackUrl: "http://llama-stack-instance-service:8321"
   # Default model to use
   defaultModel: "meta-llama/Llama-3.2-3B-Instruct"
   # Enable/disable features
