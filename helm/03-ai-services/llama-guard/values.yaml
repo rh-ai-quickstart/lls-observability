@@ -12,8 +12,7 @@ image:
       TRANSFORMERS_CACHE: "/tmp/hf_home"
       HF_HOME: "/tmp/hf_home"
   xeon:
-    # TODO: Change hardoced llama-serve namespace
-    repository: "image-registry.openshift-image-registry.svc:5000/llama-serve/vllm-xeon-opentelemetry"
+    repository: "image-registry.openshift-image-registry.svc:5000/openshift/vllm-xeon-opentelemetry"
     tag: "v0.14.1-ubi9"
     pullPolicy: IfNotPresent
     env:
