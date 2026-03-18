@@ -24,14 +24,14 @@ data:
       - provider_id: vllm-inference
         provider_type: remote::vllm
         config:
-          url: {{ .Values.llamaStackDistribution.vllmUrl | default "http://llama3-2-3b-predictor:8080/v1" | quote }}
+          url: {{ .Values.llamaStackDistribution.vllmUrl | default "http://llama3-2-3b-predictor/v1" | quote }}
           max_tokens: {{ .Values.llamaStackDistribution.vllmMaxTokens | default 60000 }}
           api_token: {{ .Values.llamaStackDistribution.vllmApiToken | default "fake" | quote }}
           tls_verify: {{ .Values.llamaStackDistribution.vllmTlsVerify | default false }}
       - provider_id: vllm-safety
         provider_type: remote::vllm
         config:
-          url: {{ .Values.llamaStackDistribution.safetyUrl | default "http://llama-guard-3-1b-predictor:8080/v1" | quote }}
+          url: {{ .Values.llamaStackDistribution.safetyUrl | default "http://llama-guard-3-1b-predictor/v1" | quote }}
           max_tokens: {{ .Values.llamaStackDistribution.safetyMaxTokens | default 20000 }}
           api_token: {{ .Values.llamaStackDistribution.vllmApiToken | default "fake" | quote }}
           tls_verify: {{ .Values.llamaStackDistribution.safetyTlsVerify | default false }}
