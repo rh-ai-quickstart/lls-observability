@@ -130,14 +130,14 @@ These traces provide insights into:
 ## Deploy
 
 ```bash
-# step 0 - git clone
-https://github.com/rh-ai-quickstart/lls-observability.git && \ 
+# step 0 
+git clone https://github.com/rh-ai-quickstart/lls-observability.git && \ 
 cd lls-observability
 ```
 
-### Quick Start - Automated Installation
-
-#### Xeon deployment -build vllm-xeon-opentelemetry
+### Prerequisites
+#### Xeon deployment
+- Build vllm-xeon-opentelemetry Image
 ```bash
 # ImageStream
 oc create imagestream vllm-xeon-opentelemetry -n openshift
@@ -146,6 +146,8 @@ oc apply -f helm/vllm-xeon-opentelemetry-build-config.yaml
 # Wait ~5 minutes and check if image is present in OpenShift
 oc get is -n openshift | grep vllm-xeon-opentelemetry
 ```
+
+### Quick Start - Automated Installation
 
 **Option 1: Complete Stack (Recommended)**
 ```bash
