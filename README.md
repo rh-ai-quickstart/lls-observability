@@ -135,7 +135,9 @@ https://github.com/rh-ai-quickstart/lls-observability.git && \
 cd lls-observability
 ```
 
-### Build vllm-xeon-opentelemetry Image (Xeon deployments)
+### Quick Start - Automated Installation
+
+#### Xeon deployment -build vllm-xeon-opentelemetry
 ```bash
 # ImageStream
 oc create imagestream vllm-xeon-opentelemetry -n openshift
@@ -144,9 +146,6 @@ oc apply -f helm/vllm-xeon-opentelemetry-build-config.yaml
 # Wait ~5 minutes and check if image is present in OpenShift
 oc get is -n openshift | grep vllm-xeon-opentelemetry
 ```
-
-### Quick Start - Automated Installation
-
 
 **Option 1: Complete Stack (Recommended)**
 ```bash
