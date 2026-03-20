@@ -33,18 +33,9 @@ print_error() {
 create_namespaces() {
     print_status "Creating required namespaces..."
     
-    # Workload namespaces
     oc create namespace $OBSERVABILITY_NAMESPACE --dry-run=client -o yaml | oc apply -f-
     oc create namespace openshift-user-workload-monitoring --dry-run=client -o yaml | oc apply -f-
     oc create namespace $AI_SERVICES_NAMESPACE --dry-run=client -o yaml | oc apply -f-
-    oc create namespace $OPERATOR_RELEASE_NAMESPACE --dry-run=client -o yaml | oc apply -f-
-
-    # Operator namespaces — pre-create so operator charts don't need to manage them
-    for ns in openshift-cluster-observability-operator openshift-grafana-operator \
-              openshift-opentelemetry-operator openshift-tempo-operator \
-              llama-stack-k8s-operator-system; do
-        oc create namespace "$ns" --dry-run=client -o yaml | oc apply -f-
-    done
     
     print_status "Namespaces created successfully"
 }
@@ -54,7 +45,11 @@ release_exists() {
     local release_name=$1
     local namespace=${2:-$DEFAULT_NAMESPACE}
 
-    helm list -q -n "$namespace" | grep -q "^${release_name}$"
+    if [ "$namespace" = "$DEFAULT_NAMESPACE" ]; then
+        helm list -q | grep -q "^${release_name}$"
+    else
+        helm list -q -n "$namespace" | grep -q "^${release_name}$"
+    fi
 }
 
 # Function to install charts in a directory
@@ -67,7 +62,7 @@ install_charts_in_directory() {
         print_warning "Directory $HELM_DIR/$dir not found, skipping..."
         return
     fi
-    
+
     print_status "Installing charts from $dir..."
 
     local pids=()
@@ -83,20 +78,22 @@ install_charts_in_directory() {
             fi
             
             print_status "Installing $chart_name..."
-
-            # For operator charts, skip namespace creation (pre-created in create_namespaces)
-            local helm_extra_args=()
-            if [ "$dir" = "01-operators" ]; then
-                helm_extra_args+=(--set namespace.create=false)
-            fi
             
             if [ "$parallel" = "true" ]; then
                 # Install in background for parallel execution
-                helm install "$chart_name" "$chart_dir" -n "$namespace" "${helm_extra_args[@]}" &
+                if [ "$namespace" = "$DEFAULT_NAMESPACE" ]; then
+                    helm install "$chart_name" "$chart_dir" &
+                else
+                    helm install "$chart_name" "$chart_dir" -n "$namespace" &
+                fi
                 pids+=($!)
             else
                 # Install sequentially
-                helm install "$chart_name" "$chart_dir" -n "$namespace" "${helm_extra_args[@]}"
+                if [ "$namespace" = "$DEFAULT_NAMESPACE" ]; then
+                    helm install "$chart_name" "$chart_dir"
+                else
+                    helm install "$chart_name" "$chart_dir" -n "$namespace"
+                fi
             fi
         fi
     done
@@ -231,7 +228,7 @@ install_ai_workloads() {
     
     # Install llama3.2-3b with GPU or Xeon configuration
     if ! release_exists "llama3-2-3b" "$AI_SERVICES_NAMESPACE"; then
-        print_status "Installing llama3.2-3b with GPU or Xeon support in $AI_SERVICES_NAMESPACE..."
+        print_status "Installing llama3.2-3b with $DEVICE support in $AI_SERVICES_NAMESPACE..."
         helm install llama3-2-3b "$HELM_DIR/03-ai-services/llama3.2-3b" -n "$AI_SERVICES_NAMESPACE" \
             --set model.name="meta-llama/Llama-3.2-3B-Instruct" \
             --set device="$DEVICE"
@@ -275,13 +272,13 @@ main() {
     echo "  Llama Stack Observability Installer"
     echo "========================================"
     echo ""
-    
+
     # Check if we're in the right directory
     if [ ! -d "$HELM_DIR" ]; then
         print_error "Helm directory not found. Please run this script from the repository root."
         exit 1
     fi
-    
+
     print_status "Starting full stack installation..."
     print_status "Using device type: $DEVICE"
     echo ""
@@ -290,23 +287,23 @@ main() {
     print_status "Phase 1: Creating namespaces"
     create_namespaces
     echo ""
-    
+
     # Phase 2: Install operators
     print_status "Phase 2: Installing operators"
-    install_charts_in_directory "01-operators" "$OPERATOR_RELEASE_NAMESPACE" "true"
+    install_charts_in_directory "01-operators" "$DEFAULT_NAMESPACE" "true"
     echo ""
-    
+
     # Phase 3: Wait for operators
     print_status "Phase 3: Waiting for operators to be ready"
     wait_for_operators
     echo ""
-    
+
     # Phase 4: Deploy observability infrastructure
     print_status "Phase 4: Deploying observability infrastructure"
-    
+
     # Deploy charts in specific order, skipping distributed-tracing-ui-plugin initially
     charts_order=("tempo" "otel-collector" "grafana")
-    
+
     for chart_name in "${charts_order[@]}"; do
         chart_dir="$HELM_DIR/02-observability/$chart_name"
         if [ -d "$chart_dir" ] && [ -f "$chart_dir/Chart.yaml" ]; then
