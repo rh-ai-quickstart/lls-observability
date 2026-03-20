@@ -135,7 +135,7 @@ https://github.com/rh-ai-quickstart/lls-observability.git && \
 cd lls-observability
 ```
 
-# Build vllm-xeon-opentelemetry Image (Xeon deployments)
+### Build vllm-xeon-opentelemetry Image (Xeon deployments)
 ```bash
 # ImageStream
 oc create imagestream vllm-xeon-opentelemetry -n openshift
