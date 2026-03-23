@@ -307,6 +307,6 @@ make clean
 
 ## Tags
 
-* **Industry:** Adopt and scale AI
+* **Industry:** Banking and securities
 * **Use case:** Compliance 
 * **Product:**  OpenShift AI 
