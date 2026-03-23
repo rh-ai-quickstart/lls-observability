@@ -4,7 +4,6 @@ replicaCount: 1
 device: "gpu"  # Options: gpu, xeon
 image:
   gpu:
-
     repository: "quay.io/rcarrata/vllm-otlp-tracing@sha256"
     tag: "16f83f5858fcc04bd56ea785126c04af823e8aacbeabb9db963f86d252178189"
     pullPolicy: IfNotPresent
