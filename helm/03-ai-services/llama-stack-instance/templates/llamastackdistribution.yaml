@@ -30,9 +30,9 @@ spec:
         - name: VLLM_MAX_TOKENS
           value: "60000"
         - name: VLLM_URL
-          value: "http://llama3-2-3b-predictor:8080/v1"
+          value: "http://llama3-2-3b-predictor/v1"
         - name: SAFETY_URL
-          value: "http://llama-guard-3-1b-predictor:8080/v1"
+          value: "http://llama-guard-3-1b-predictor/v1"
         - name: VLLM_API_TOKEN
           value: "fake"
         - name: VLLM_TLS_VERIFY

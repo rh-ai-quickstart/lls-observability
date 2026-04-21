@@ -1,0 +1,31 @@
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: vllm-xeon-opentelemetry
+  namespace: openshift
+spec:
+  source:
+    dockerfile: |
+      # Use the vllm-cpu-ubi image as the base
+      FROM docker.io/opea/vllm-cpu-ubi:v0.14.1-ubi9
+
+      USER 0
+
+      # Install OpenTelemetry packages
+      RUN pip install \
+          "opentelemetry-sdk>=1.26.0,<1.27.0" \
+          "opentelemetry-api>=1.26.0,<1.27.0" \
+          "opentelemetry-exporter-otlp>=1.26.0,<1.27.0" \
+          "opentelemetry-semantic-conventions-ai>=0.4.1,<0.5.0"
+
+      USER 1001
+  strategy:
+    type: Docker
+    dockerStrategy: {}
+  output:
+    to:
+      kind: ImageStreamTag
+      name: vllm-xeon-opentelemetry:v0.14.1-ubi9
+  runPolicy: SerialLatestOnly
+  triggers:
+  - type: ConfigChange

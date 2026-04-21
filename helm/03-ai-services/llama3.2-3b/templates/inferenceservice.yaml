@@ -14,6 +14,9 @@ metadata:
   finalizers:
     - serving.kserve.io/inferenceservice-finalizer
 spec:
+  {{- $device := lower (.Values.device | default "gpu") }}
+  {{- $resources := index .Values.resources $device }}
+  {{- $tolerations := index .Values.tolerations $device }}
   predictor:
     maxReplicas: {{ .Values.inferenceService.maxReplicas | default 1 }}
     minReplicas: {{ .Values.inferenceService.minReplicas | default 1 }}
@@ -22,8 +25,10 @@ spec:
         name: {{ .Values.inferenceService.modelFormat | default "vLLM" }}
       name: {{ .Values.inferenceService.modelName | default "" }}
       resources:
-        {{- toYaml .Values.resources | nindent 8 }}
+        {{- toYaml $resources | nindent 8 }}
       runtime: llama3-2-3b
       storageUri: {{ .Values.inferenceService.storageUri | default "oci://quay.io/redhat-ai-services/modelcar-catalog:llama-3.2-3b-instruct" }}
+    {{- if $tolerations }}
     tolerations:
-      {{- toYaml .Values.tolerations | nindent 6 }}
+      {{- toYaml $tolerations | nindent 6 }}
+    {{- end }}

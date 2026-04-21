@@ -1,10 +1,24 @@
 # Default values for llama-guard
 replicaCount: 1
 
+device: gpu # Options: gpu, xeon
 image:
-  repository: 'quay.io/modh/vllm@sha256:'
-  tag: "4f550996130e7d16cacb24ca9a2865e7cf51eddaab014ceaf31a1ea6ef86d4ec"
-  pullPolicy: IfNotPresent
+  gpu:
+    repository: "quay.io/modh/vllm@sha256"
+    tag: "4f550996130e7d16cacb24ca9a2865e7cf51eddaab014ceaf31a1ea6ef86d4ec"
+    pullPolicy: IfNotPresent
+    env:
+      CUDA_VISIBLE_DEVICES: "0"
+      TRANSFORMERS_CACHE: "/tmp/hf_home"
+      HF_HOME: "/tmp/hf_home"
+  xeon:
+    repository: "image-registry.openshift-image-registry.svc:5000/openshift/vllm-xeon-opentelemetry"
+    tag: "v0.14.1-ubi9"
+    pullPolicy: IfNotPresent
+    env:
+      VLLM_CPU_KVCACHE_SPACE: 4
+      TRANSFORMERS_CACHE: "/tmp/hf_home"
+      HF_HOME: "/tmp/hf_home"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -84,14 +98,22 @@ ingress:
 
 # Resource requirements (adjust based on GPU availability)
 resources:
-  limits:
-    nvidia.com/gpu: 1
-    memory: 10Gi
-    cpu: 8
-  requests:
-    nvidia.com/gpu: 1
-    memory: 8Gi
-    cpu: 1
+  gpu:
+    requests:
+      nvidia.com/gpu: 1
+      memory: 8Gi
+      cpu: 4
+    limits:
+      nvidia.com/gpu: 1
+      memory: 10Gi
+      cpu: 8
+  xeon:
+    requests:
+      cpu: 4
+      memory: 16Gi
+    limits:
+      cpu: 16
+      memory: 32Gi
 
 livenessProbe:
   httpGet:
@@ -116,22 +138,44 @@ autoscaling:
   maxReplicas: 3
   targetCPUUtilizationPercentage: 80
 
+# For Xeon deployments, you can use node selectors, tolerations and affinity to target appropriate nodes,
+# when your cluster has a mix of older and newer CPU generations.
+# Adjust these based on your cluster's labeling and tainting strategy.
 nodeSelector:
-  nvidia.com/gpu.present: "true"
+  gpu:
+    nvidia.com/gpu.present: "true"
+# xeon:
+#   intel.com/cpu-gen: "spr"
+#   intel.com/cpu-gen: "emr"
+#   intel.com/cpu-gen: "gnr"
 
 tolerations:
+  gpu:
   - effect: NoSchedule
     operator: Exists
+# xeon:
+# - effect: NoSchedule
+#   operator: Exists
 
 affinity:
-  nodeAffinity:
-    requiredDuringSchedulingIgnoredDuringExecution:
-      nodeSelectorTerms:
-      - matchExpressions:
-        - key: nvidia.com/gpu.present
-          operator: In
-          values:
-          - "true"
+  gpu:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: nvidia.com/gpu.present
+            operator: In
+            values:
+            - "true"
+# xeon:
+#   nodeAffinity:
+#     requiredDuringSchedulingIgnoredDuringExecution:
+#       nodeSelectorTerms:
+#       - matchExpressions:
+#         # Use taints and labels to target specific CPU generations for optimal performance
+#         - key: intel.com/cpu-gen
+#           operator: In
+#           values: ["spr", "emr", "gnr"]
 
 # Persistent Volume for model cache
 persistence:
@@ -140,12 +184,6 @@ persistence:
   accessMode: ReadWriteOnce
   size: 10Gi
   mountPath: /tmp/hf_home
-
-# Environment variables
-env:
-  CUDA_VISIBLE_DEVICES: "0"
-  TRANSFORMERS_CACHE: "/tmp/hf_home"
-  HF_HOME: "/tmp/hf_home"
 
 # InferenceService configuration
 inferenceService:
@@ -160,7 +198,6 @@ inferenceService:
 # Serving Runtime configuration
 servingRuntime:
   enabled: true  # Set to true to create a ServingRuntime resource
-  image: "quay.io/modh/vllm@sha256:4f550996130e7d16cacb24ca9a2865e7cf51eddaab014ceaf31a1ea6ef86d4ec"
   tensorParallelSize: 1
   shmSizeLimit: "2Gi"
   memBufferBytes: 134217728  # 128MB

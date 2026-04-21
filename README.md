@@ -107,7 +107,13 @@ These traces provide insights into:
 - **CPU**: 8+ cores recommended for full stack deployment
 - **Memory**: 16GB+ RAM for monitoring stack, additional memory based on AI workload requirements
 - **Storage**: 100GB+ for observability data retention
-- **GPU**: NVIDIA GPU required for AI model inference (varies by model size)
+- **Inference Hardware**
+  - **GPU** *(Default)*: NVIDIA GPU required for AI model inference (varies by model size)
+  - **Xeon**:
+    - 2 worker nodes with Intel Xeon processor 4th gen or newer (SPR, EMR, GNR) with a minimum of 32vCPU and 64GB of RAM
+      - Llama3.2-3b requires at least 16vCPU and 32GB of memory
+      - Lllama-Guard (Llama-Guard-3-1B) requires at least 4vCPU and 16GB of memory
+      - for example: m8i.8xlarge, m7i.8xlarge, c8i.8xlarge
 
 ### Minimum software requirements
 
@@ -119,27 +125,43 @@ These traces provide insights into:
 ### Required user permissions
 
 - **Cluster Admin** - Required for operator installation and observability stack setup
-- **GPU Access** - Required for AI workload deployment
+- **GPU Access** - Required for AI workload deployment on GPU
 
 ## Deploy
 
 ```bash
-# step 0 - git clone
-https://github.com/rh-ai-quickstart/lls-observability.git && \ 
+# step 0 
+git clone https://github.com/rh-ai-quickstart/lls-observability.git && \ 
 cd lls-observability
 ```
 
-### Quick Start - Automated Installation
+### Prerequisites
+#### Xeon deployment
+- Build vllm-xeon-opentelemetry Image
+```bash
+# ImageStream
+oc create imagestream vllm-xeon-opentelemetry -n openshift
+# BuildConfig
+oc apply -f helm/vllm-xeon-opentelemetry-build-config.yaml
+# Wait ~5 minutes and check if image is present in OpenShift
+oc get is -n openshift | grep vllm-xeon-opentelemetry
+```
 
+### Quick Start - Automated Installation
 
 **Option 1: Complete Stack (Recommended)**
 ```bash
 # Run the full installation script
 ./scripts/install-full-stack.sh
+# Xeon
+DEVICE=xeon scripts/install-full-stack.sh
 ```
 
 **Option 2: Phase-by-Phase Installation**
 ```bash
+# For Xeon Deployments set DEVICE environment variable
+# export DEVICE=xeon
+
 # Phase 1: Install operators
 ./scripts/install-operators.sh
 
@@ -152,6 +174,9 @@ cd lls-observability
 
 **Option 3: Using Makefile (Optional)**
 ```bash
+# Xeon Deployments
+# export DEVICE=xeon
+
 # Install everything in one command
 make install-all
 
@@ -173,6 +198,10 @@ Set these environment variables before running the installation commands:
 export OBSERVABILITY_NAMESPACE="observability-hub"
 export UWM_NAMESPACE="openshift-user-workload-monitoring"
 export AI_SERVICES_NAMESPACE="llama-serve"
+
+# Need to explicitly set DEVICE deployment
+export DEVICE=GPU # or xeon
+
 ```
 
 Launch this instructions:
@@ -216,17 +245,17 @@ helm install hr-api ./helm/04-mcp-servers/hr-api -n ${AI_SERVICES_NAMESPACE}
 # Deploy AI services in AI services namespace  
 helm install llama3-2-3b ./helm/03-ai-services/llama3.2-3b -n ${AI_SERVICES_NAMESPACE} \
   --set model.name="meta-llama/Llama-3.2-3B-Instruct" \
-  --set resources.limits."nvidia\.com/gpu"=1
+  --set device="$DEVICE"
 
 helm install llama-stack-instance ./helm/03-ai-services/llama-stack-instance -n ${AI_SERVICES_NAMESPACE} \
   --set 'mcpServers[0].name=weather' \
   --set 'mcpServers[0].uri=http://mcp-weather.${AI_SERVICES_NAMESPACE}.svc.cluster.local:80' \
   --set 'mcpServers[0].description=Weather MCP Server for real-time weather data'
 
-helm install llama-stack-playground ./helm/03-ai-services/llama-stack-playground -n ${AI_SERVICES_NAMESPACE} \
-  --set playground.llamaStackUrl="http://llama-stack-instance.${AI_SERVICES_NAMESPACE}.svc.cluster.local:80"
+helm install llama-stack-playground ./helm/03-ai-services/llama-stack-playground -n ${AI_SERVICES_NAMESPACE}
 
-helm install llama-guard ./helm/03-ai-services/llama-guard -n ${AI_SERVICES_NAMESPACE}
+helm install llama-guard ./helm/03-ai-services/llama-guard -n ${AI_SERVICES_NAMESPACE} \
+  --set device="$DEVICE"
 
 # 7. Enable tracing UI
 helm install distributed-tracing-ui-plugin ./helm/02-observability/distributed-tracing-ui-plugin

@@ -10,9 +10,11 @@ NC='\033[0m' # No Color
 
 # Configuration
 HELM_DIR="./helm"
-OBSERVABILITY_NAMESPACE="observability-hub"
-AI_SERVICES_NAMESPACE="llama-serve"
-DEFAULT_NAMESPACE="default"
+OBSERVABILITY_NAMESPACE="${OBSERVABILITY_NAMESPACE:-observability-hub}"
+AI_SERVICES_NAMESPACE="${AI_SERVICES_NAMESPACE:-llama-serve}"
+DEFAULT_NAMESPACE="${DEFAULT_NAMESPACE:-default}"
+OPERATOR_RELEASE_NAMESPACE="${OPERATOR_RELEASE_NAMESPACE:-lls-observability}"
+DEVICE="${DEVICE:-gpu}" # Supported values: "gpu" or "xeon"
 
 # Function to print colored output
 print_status() {
@@ -42,7 +44,7 @@ create_namespaces() {
 release_exists() {
     local release_name=$1
     local namespace=${2:-$DEFAULT_NAMESPACE}
-    
+
     if [ "$namespace" = "$DEFAULT_NAMESPACE" ]; then
         helm list -q | grep -q "^${release_name}$"
     else
@@ -60,11 +62,11 @@ install_charts_in_directory() {
         print_warning "Directory $HELM_DIR/$dir not found, skipping..."
         return
     fi
-    
+
     print_status "Installing charts from $dir..."
-    
+
     local pids=()
-    
+
     for chart_dir in "$HELM_DIR/$dir"/*; do
         if [ -d "$chart_dir" ] && [ -f "$chart_dir/Chart.yaml" ]; then
             chart_name=$(basename "$chart_dir")
@@ -224,12 +226,12 @@ install_ai_workloads() {
     # Using inline Milvus - no external deployment needed
     print_status "Using inline Milvus (configured within llama-stack-instance)..."
     
-    # Install llama3.2-3b with GPU configuration
+    # Install llama3.2-3b with GPU or Xeon configuration
     if ! release_exists "llama3-2-3b" "$AI_SERVICES_NAMESPACE"; then
-        print_status "Installing llama3.2-3b with GPU support in $AI_SERVICES_NAMESPACE..."
+        print_status "Installing llama3.2-3b with $DEVICE support in $AI_SERVICES_NAMESPACE..."
         helm install llama3-2-3b "$HELM_DIR/03-ai-services/llama3.2-3b" -n "$AI_SERVICES_NAMESPACE" \
             --set model.name="meta-llama/Llama-3.2-3B-Instruct" \
-            --set resources.limits."nvidia\.com/gpu"=1
+            --set device="$DEVICE"
     else
         print_warning "llama3-2-3b already installed, skipping..."
     fi
@@ -246,8 +248,7 @@ install_ai_workloads() {
     # Install playground
     if ! release_exists "llama-stack-playground" "$AI_SERVICES_NAMESPACE"; then
         print_status "Installing llama-stack-playground in $AI_SERVICES_NAMESPACE..."
-        helm install llama-stack-playground "$HELM_DIR/03-ai-services/llama-stack-playground" -n "$AI_SERVICES_NAMESPACE" \
-            --set playground.llamaStackUrl="http://llama-stack-instance.llama-serve.svc.cluster.local:80"
+        helm install llama-stack-playground "$HELM_DIR/03-ai-services/llama-stack-playground" -n "$AI_SERVICES_NAMESPACE"
     else
         print_warning "llama-stack-playground already installed, skipping..."
     fi
@@ -256,7 +257,9 @@ install_ai_workloads() {
     if [ -d "$HELM_DIR/03-ai-services/llama-guard" ]; then
         if ! release_exists "llama-guard" "$AI_SERVICES_NAMESPACE"; then
             print_status "Installing llama-guard in $AI_SERVICES_NAMESPACE..."
-            helm install llama-guard "$HELM_DIR/03-ai-services/llama-guard" -n "$AI_SERVICES_NAMESPACE"
+            helm install llama-guard "$HELM_DIR/03-ai-services/llama-guard" -n "$AI_SERVICES_NAMESPACE" \
+                --set device="$DEVICE"
+
         else
             print_warning "llama-guard already installed, skipping..."
         fi
@@ -269,36 +272,38 @@ main() {
     echo "  Llama Stack Observability Installer"
     echo "========================================"
     echo ""
-    
+
     # Check if we're in the right directory
     if [ ! -d "$HELM_DIR" ]; then
         print_error "Helm directory not found. Please run this script from the repository root."
         exit 1
     fi
-    
+
     print_status "Starting full stack installation..."
-    
+    print_status "Using device type: $DEVICE"
+    echo ""
+
     # Phase 1: Create namespaces
     print_status "Phase 1: Creating namespaces"
     create_namespaces
     echo ""
-    
+
     # Phase 2: Install operators
     print_status "Phase 2: Installing operators"
     install_charts_in_directory "01-operators" "$DEFAULT_NAMESPACE" "true"
     echo ""
-    
+
     # Phase 3: Wait for operators
     print_status "Phase 3: Waiting for operators to be ready"
     wait_for_operators
     echo ""
-    
+
     # Phase 4: Deploy observability infrastructure
     print_status "Phase 4: Deploying observability infrastructure"
-    
+
     # Deploy charts in specific order, skipping distributed-tracing-ui-plugin initially
     charts_order=("tempo" "otel-collector" "grafana")
-    
+
     for chart_name in "${charts_order[@]}"; do
         chart_dir="$HELM_DIR/02-observability/$chart_name"
         if [ -d "$chart_dir" ] && [ -f "$chart_dir/Chart.yaml" ]; then
