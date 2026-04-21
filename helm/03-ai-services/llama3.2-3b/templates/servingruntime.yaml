@@ -1,8 +1,4 @@
 {{- if .Values.servingRuntime.enabled }}
-{{- $device := lower (.Values.device | default "gpu") }}
-{{- $image := index .Values.image $device }}
-{{- $resources := index .Values.resources $device }}
-{{- $chatTemplate := index $image "chatTemplate" }}
 apiVersion: serving.kserve.io/v1alpha1
 kind: ServingRuntime
 metadata:
@@ -11,9 +7,7 @@ metadata:
     {{- include "llama3-2-3b.labels" . | nindent 4 }}
   annotations:
     opendatahub.io/apiProtocol: REST
-    {{- if eq $device "gpu" }}
     opendatahub.io/accelerator-name: migrated-gpu
-    {{- end }}
 spec:
   supportedModelFormats:
   - name: vLLM
@@ -24,19 +18,16 @@ spec:
     autoSelect: true
   containers:
   - name: kserve-container
-    image: {{ (index $image "repository") }}:{{ (index $image "tag") }}
-    imagePullPolicy: {{ default "IfNotPresent" (index $image "pullPolicy") }}
+    image: {{ .Values.servingRuntime.image | default "quay.io/modh/vllm@sha256:0d55419f3d168fd80868a36ac89815dded9e063937a8409b7edf3529771383f3" }}
     args:
     - --model=/mnt/models
     - --port=8080
     - --max-model-len={{ .Values.model.maxModelLen | default 8192 }}
-    {{- if eq $device "gpu" }}
     - --gpu_memory_utilization={{ .Values.model.gpuMemoryUtilization | default 0.95 }}
-    {{- end }}
-    - --served-model-name=llama3-2-3b
-    - --chat-template={{ $chatTemplate }}
-    - --enable-auto-tool-choice
-    - --tool-call-parser
+    - '--served-model-name=llama3-2-3b'
+    - --chat-template=/app/data/template/tool_chat_template_llama3.2_json.jinja
+    - '--enable-auto-tool-choice'
+    - '--tool-call-parser'
     - llama3_json
     {{- if .Values.servingRuntime.tracing.enabled }}
     # tracing-specific flags and options
@@ -54,7 +45,7 @@ spec:
     - name: OTEL_EXPORTER_OTLP_TRACES_INSECURE
       value: {{ .Values.servingRuntime.tracing.insecure | quote }}
     {{- end }}
-    {{- range $key, $value := index $image "env" }}
+    {{- range $key, $value := .Values.env }}
     {{- if ne $key "HF_HOME" }}
     - name: {{ $key }}
       value: {{ $value | quote }}
@@ -65,36 +56,26 @@ spec:
       name: h2c
       protocol: TCP
     resources:
-      {{- toYaml $resources | nindent 6 }}
+      {{- toYaml .Values.resources | nindent 6 }}
     volumeMounts:
     - name: shm
       mountPath: /dev/shm
-    - name: chat-template
-      mountPath: {{ $chatTemplate | quote }}
-      subPath: tool_chat_template_llama3.2_json.jinja
-      readOnly: true
   volumes:
   - name: shm
     emptyDir:
       medium: Memory
       sizeLimit: {{ .Values.servingRuntime.shmSizeLimit | default "1Gi" }}
-  - name: chat-template
-    configMap:
-      name: {{ include "llama3-2-3b.fullname" . }}-chat-template
-      items:
-      - key: tool_chat_template_llama3.2_json.jinja
-        path: tool_chat_template_llama3.2_json.jinja
-  {{- if and .Values.nodeSelector (hasKey .Values.nodeSelector $device) }}
+  {{- with .Values.nodeSelector }}
   nodeSelector:
-    {{- toYaml (index .Values.nodeSelector $device) | nindent 4 }}
+    {{- toYaml . | nindent 4 }}
   {{- end }}
-  {{- if and .Values.affinity (hasKey .Values.affinity $device) }}
+  {{- with .Values.affinity }}
   affinity:
-    {{- toYaml (index .Values.affinity $device) | nindent 4 }}
+    {{- toYaml . | nindent 4 }}
   {{- end }}
-  {{- if and .Values.tolerations (hasKey .Values.tolerations $device) }}
+  {{- with .Values.tolerations }}
   tolerations:
-    {{- toYaml (index .Values.tolerations $device) | nindent 4 }}
+    {{- toYaml . | nindent 4 }}
   {{- end }}
   builtInAdapter:
     serverType: vllm
