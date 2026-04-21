@@ -130,7 +130,7 @@ collector:
               scrape_interval: 15s
               static_configs:
                 - targets:
-                    - 'llama3-2-3b-predictor.llama-serve.svc.cluster.local:80'
+                    - 'llama3-2-3b-predictor.llama-serve.svc.cluster.local:8080'
       otlp:
         protocols:
           grpc:
@@ -178,7 +178,7 @@ collector:
             - otlphttp/dev
       telemetry:
         metrics:
-          level: detailed
+          address: 0.0.0.0:8888
 
 # Tempo configuration for exporters
 tempo:
@@ -202,7 +202,7 @@ prometheus:
       jobName: "llama3-2-3b"
       scrapeInterval: "15s"
       targets:
-        - "llama3-2-3b-predictor.llama-serve.svc.cluster.local:80"
+        - "llama3-2-3b-predictor.llama-serve.svc.cluster.local:8080"
 
 # Sidecar configurations
 sidecars:
@@ -247,7 +247,7 @@ sidecars:
               - otlp
         telemetry:
           metrics:
-            level: detailed
+            address: '0.0.0.0:8888'
     
     # Target allocator configuration
     targetAllocator:
@@ -315,7 +315,7 @@ sidecars:
               - otlp
         telemetry:
           metrics:
-            level: detailed
+            address: '0.0.0.0:8888'
     
     # Target allocator configuration
     targetAllocator:

@@ -34,7 +34,7 @@ spec:
             - otlp
       telemetry:
         metrics:
-          level: detailed
+          address: '0.0.0.0:8888'
   mode: sidecar
   resources: {}
   podDnsConfig: {}

@@ -22,8 +22,8 @@ spec:
         name: {{ .Values.inferenceService.modelFormat | default "vLLM" }}
       name: {{ .Values.inferenceService.modelName | default "" }}
       resources:
-        {{- toYaml (index .Values.resources .Values.device) | nindent 8 }}
+        {{- toYaml .Values.resources | nindent 8 }}
       runtime: llama-guard-3-1b
       storageUri: {{ .Values.inferenceService.storageUri | default "oci://quay.io/rh-aiservices-bu/llama-guard-3-1b-modelcar:2.0.0" }}
     tolerations:
-      {{- toYaml (index .Values.tolerations .Values.device) | nindent 6 }}
+      {{- toYaml .Values.tolerations | nindent 6 }}

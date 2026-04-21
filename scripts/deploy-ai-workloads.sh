@@ -8,9 +8,6 @@ YELLOW='\033[1;33m'
 RED='\033[0;31m'
 NC='\033[0m'
 
-# Supported values: "gpu" or "xeon"
-DEVICE="${DEVICE:-gpu}"
-
 print_status() {
     echo -e "${GREEN}[INFO]${NC} $1"
 }
@@ -74,10 +71,10 @@ print_status "Step 3: Deploying AI services..."
 # Deploy llama3.2-3b with GPU configuration
 if [ -d "$HELM_DIR/03-ai-services/llama3.2-3b" ]; then
     if ! release_exists "llama3-2-3b" "$AI_SERVICES_NAMESPACE"; then
-        print_status "Installing llama3.2-3b with $DEVICE support in $AI_SERVICES_NAMESPACE..."
+        print_status "Installing llama3.2-3b with GPU support in $AI_SERVICES_NAMESPACE..."
         helm install llama3-2-3b "$HELM_DIR/03-ai-services/llama3.2-3b" -n "$AI_SERVICES_NAMESPACE" \
             --set model.name="meta-llama/Llama-3.2-3B-Instruct" \
-            --set device="$DEVICE"
+            --set resources.limits."nvidia\.com/gpu"=1
     else
         print_warning "llama3-2-3b already installed, skipping..."
     fi
@@ -106,7 +103,8 @@ fi
 if [ -d "$HELM_DIR/03-ai-services/llama-stack-playground" ]; then
     if ! release_exists "llama-stack-playground" "$AI_SERVICES_NAMESPACE"; then
         print_status "Installing llama-stack-playground in $AI_SERVICES_NAMESPACE..."
-        helm install llama-stack-playground "$HELM_DIR/03-ai-services/llama-stack-playground" -n "$AI_SERVICES_NAMESPACE"
+        helm install llama-stack-playground "$HELM_DIR/03-ai-services/llama-stack-playground" -n "$AI_SERVICES_NAMESPACE" \
+            --set playground.llamaStackUrl="http://llama-stack-instance.llama-serve.svc.cluster.local:80"
     else
         print_warning "llama-stack-playground already installed, skipping..."
     fi
@@ -118,8 +116,7 @@ fi
 if [ -d "$HELM_DIR/03-ai-services/llama-guard" ]; then
     if ! release_exists "llama-guard" "$AI_SERVICES_NAMESPACE"; then
         print_status "Installing llama-guard in $AI_SERVICES_NAMESPACE..."
-        helm install llama-guard "$HELM_DIR/03-ai-services/llama-guard" -n "$AI_SERVICES_NAMESPACE" \
-            --set device="$DEVICE"
+        helm install llama-guard "$HELM_DIR/03-ai-services/llama-guard" -n "$AI_SERVICES_NAMESPACE"
     else
         print_warning "llama-guard already installed, skipping..."
     fi
@@ -131,7 +128,6 @@ print_status "AI workloads deployment completed!"
 
 echo ""
 echo "Deployment summary:"
-echo "- Device type: $DEVICE"
 echo "- MCP Servers: weather, hr-api, openshift-mcp (in $AI_SERVICES_NAMESPACE namespace)"
 echo "- AI Services: llama3.2-3b, llama-stack-instance (with inline Milvus), playground, llama-guard (in $AI_SERVICES_NAMESPACE namespace)"
 echo ""
