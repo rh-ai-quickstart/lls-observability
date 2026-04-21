@@ -23,6 +23,10 @@ spec:
   resources:
     {{- toYaml . | nindent 4 }}
   {{- end }}
+  {{- with .Values.collector.env }}
+  env:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
   observability:
     {{- with .Values.collector.observability }}
     {{- toYaml . | nindent 4 }}

@@ -40,6 +40,13 @@ rbac:
           - traces
         verbs:
           - 'create'
+      # Kubernetes attributes processor (list/watch pods, namespaces, replicasets)
+      - apiGroups: ['']
+        resources: ['pods', 'namespaces']
+        verbs: ['get', 'watch', 'list']
+      - apiGroups: ['apps']
+        resources: ['replicasets']
+        verbs: ['get', 'watch', 'list']
 
 # Main OpenTelemetry Collector configuration
 collector:
@@ -72,6 +79,12 @@ collector:
     # requests:
     #   cpu: 100m
     #   memory: 128Mi
+
+  env:
+    - name: KUBE_NODE_NAME
+      valueFrom:
+        fieldRef:
+          fieldPath: spec.nodeName
   
   # Observability settings for the collector itself
   observability:
@@ -127,6 +140,9 @@ collector:
     
     # Processors configuration
     processors:
+      k8sattributes:
+        filter:
+          node_from_env_var: KUBE_NODE_NAME
       batch:
         send_batch_size: 100
         timeout: 1s
@@ -145,6 +161,7 @@ collector:
             - otlp
             - prometheus
           processors:
+            - k8sattributes
             - batch
             - memory_limiter
           exporters:
@@ -153,6 +170,7 @@ collector:
           receivers:
             - otlp
           processors:
+            - k8sattributes
             - batch
             - memory_limiter
           exporters:
